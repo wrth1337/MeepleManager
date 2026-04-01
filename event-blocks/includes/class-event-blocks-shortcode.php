@@ -1,0 +1,170 @@
+<?php
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+class Event_Blocks_Shortcode {
+    private $repository;
+    private $normalizer;
+    private $assets;
+
+    public function __construct(
+        Event_Blocks_Event_Repository $repository,
+        Event_Blocks_Event_Normalizer $normalizer,
+        Event_Blocks_Assets $assets
+    ) {
+        $this->repository = $repository;
+        $this->normalizer = $normalizer;
+        $this->assets = $assets;
+    }
+
+    public function register() {
+        add_shortcode('event_blocks', array($this, 'render'));
+        add_shortcode('vereins_events', array($this, 'render'));
+    }
+
+    public function render($atts) {
+        $atts = shortcode_atts(
+            array(
+                'limit' => 0,
+                'show_past' => '0',
+            ),
+            $atts,
+            'event_blocks'
+        );
+
+        $this->assets->enqueue_frontend();
+
+        $posts = $this->repository->get_events(
+            array(
+                'limit' => (int) $atts['limit'],
+                'show_past' => $atts['show_past'] === '1',
+            )
+        );
+
+        $events = array();
+
+        foreach ($posts as $post) {
+            $normalized = $this->normalizer->normalize_event($post);
+
+            if ($normalized !== null) {
+                $events[] = $normalized;
+            }
+        }
+
+        if (empty($events)) {
+            return $atts['show_past'] === '1'
+                ? '<div class="event-blocks-note">Zurzeit sind keine Events vorhanden.</div>'
+                : '<div class="event-blocks-note">Zurzeit sind keine kommenden Events vorhanden.</div>';
+        }
+
+        $output = '<div class="event-blocks-grid">';
+
+        foreach ($events as $event) {
+            $output .= $this->render_card($event);
+        }
+
+        $output .= '</div>';
+
+        return $output;
+    }
+
+    private function render_card($event) {
+        $title = esc_html($event['title']);
+        $title_attr = esc_attr($event['title']);
+        $date = esc_html($this->normalizer->format_date($event['timestamp']));
+        $time = esc_html($event['time']);
+        $location = esc_html($event['location']);
+        $location_link = $event['location_link'];
+        $image = $event['image'];
+        $link = $event['link'];
+        $notes = $event['notes'];
+        $categories = $event['categories'];
+
+        $classes = 'event-blocks-card';
+        $attributes = '';
+
+        if ($link !== '') {
+            $classes .= ' event-blocks-card--clickable';
+            $attributes = ' data-href="' . esc_url($link) . '" tabindex="0" role="link"';
+        }
+
+        if ($image === '') {
+            $classes .= ' event-blocks-card--no-image';
+        }
+
+        $output = '<article class="' . esc_attr($classes) . '"' . $attributes . '>';
+
+        if ($image !== '') {
+            $output .= '<div class="event-blocks-media">';
+            $output .= '<img class="event-blocks-image" src="' . esc_url($image) . '" alt="' . $title_attr . '" loading="lazy">';
+            $output .= '</div>';
+        }
+
+        $output .= '<div class="event-blocks-content">';
+        $output .= '<div class="event-blocks-topline">';
+        $output .= '<div class="event-blocks-date-badge">' . $date . '</div>';
+
+        if (!empty($categories)) {
+            $output .= '<div class="event-blocks-badges">';
+
+            foreach ($categories as $category) {
+                $output .= sprintf(
+                    '<span class="event-blocks-badge" style="--event-blocks-badge-color:%1$s;">%2$s</span>',
+                    esc_attr($category['color']),
+                    esc_html($category['name'])
+                );
+            }
+
+            $output .= '</div>';
+        }
+
+        $output .= '</div>';
+
+        $output .= '<h3 class="event-blocks-title">' . $title . '</h3>';
+        $output .= '<div class="event-blocks-meta">';
+
+        if ($time !== '') {
+            $output .= '<div class="event-blocks-meta-item"><span class="event-blocks-meta-label">Uhrzeit</span><span class="event-blocks-meta-value">' . $time . ' Uhr</span></div>';
+        }
+        if ($location !== '') {
+            $output .= '<div class="event-blocks-meta-item"><span class="event-blocks-meta-label">Ort</span><span class="event-blocks-meta-value">' . $this->render_location($location, $location_link) . '</span></div>';
+        }
+        $output .= '</div>';
+
+        if (!empty($notes)) {
+            $output .= '<div class="event-blocks-notes-block">';
+            $output .= '<div class="event-blocks-notes-title">Hinweise</div>';
+            $output .= '<ul class="event-blocks-notes">';
+
+            foreach ($notes as $note) {
+                $output .= '<li>' . esc_html($note) . '</li>';
+            }
+
+            $output .= '</ul>';
+            $output .= '</div>';
+        }
+
+        if ($link !== '') {
+            $output .= '<div class="event-blocks-card-footer">Mehr Informationen</div>';
+        }
+
+        $output .= '</div>';
+        $output .= '</article>';
+
+        return $output;
+    }
+
+    private function render_location($location, $location_link) {
+        if ($location_link === '') {
+            return $location;
+        }
+
+        return sprintf(
+            '<a class="event-blocks-location-link" href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
+            esc_url($location_link),
+            $location
+        );
+    }
+}
