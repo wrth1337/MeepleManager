@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Event-Blocks
  * Description: Manages events as a WordPress post type and displays them as event tiles using a shortcode.
- * Version: 3.0.0
+ * Version: 1.0.0
  * Author: wrth1337
  */
 
