@@ -7,9 +7,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     var inputs = form.querySelectorAll('[data-event-blocks-setting]');
+    var textInputs = form.querySelectorAll('[data-event-blocks-text-setting]');
     var resettableInputs = form.querySelectorAll('[data-default]');
     var resetButton = form.querySelector('[data-event-blocks-reset-defaults]');
-    var announcementLabelInput = form.querySelector('[data-event-blocks-announcement-label]');
 
     function syncInput(input) {
         var cssVariable = input.getAttribute('data-css-variable');
@@ -31,16 +31,24 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    function syncAnnouncementLabel() {
-        if (!announcementLabelInput) {
+    function syncTextInput(input) {
+        var key = input.getAttribute('data-event-blocks-text-setting');
+        var value = input.value || input.getAttribute('data-default') || '';
+
+        if (!key) {
             return;
         }
 
-        var value = announcementLabelInput.value;
-
-        preview.querySelectorAll('.event-blocks-status').forEach(function (element) {
-            element.textContent = value || announcementLabelInput.getAttribute('data-default') || 'Vorankuendigung';
+        preview.querySelectorAll('[data-event-blocks-text="' + key + '"]').forEach(function (element) {
+            element.textContent = value;
         });
+
+        if (key === 'time_suffix') {
+            preview.querySelectorAll('[data-event-blocks-time-value]').forEach(function (element) {
+                var baseValue = element.getAttribute('data-event-blocks-time-value') || '';
+                element.textContent = value ? baseValue + ' ' + value : baseValue;
+            });
+        }
     }
 
     inputs.forEach(function (input) {
@@ -55,12 +63,17 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    if (announcementLabelInput) {
-        syncAnnouncementLabel();
+    textInputs.forEach(function (input) {
+        syncTextInput(input);
 
-        announcementLabelInput.addEventListener('input', syncAnnouncementLabel);
-        announcementLabelInput.addEventListener('change', syncAnnouncementLabel);
-    }
+        input.addEventListener('input', function () {
+            syncTextInput(input);
+        });
+
+        input.addEventListener('change', function () {
+            syncTextInput(input);
+        });
+    });
 
     if (resetButton) {
         resetButton.addEventListener('click', function () {
@@ -74,8 +87,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 }
             });
-
-            syncAnnouncementLabel();
+            textInputs.forEach(function (input) {
+                syncTextInput(input);
+            });
         });
     }
 });

@@ -9,6 +9,7 @@ class Event_Blocks_Shortcode {
     private $normalizer;
     private $assets;
     private $style_settings;
+    private $settings = null;
 
     public function __construct(
         Event_Blocks_Event_Repository $repository,
@@ -62,8 +63,8 @@ class Event_Blocks_Shortcode {
     public function render_events($events, $wrapper_attributes = array(), $show_past = false) {
         if (empty($events)) {
             return $show_past
-                ? '<div class="event-blocks-note">Zurzeit sind keine Events vorhanden.</div>'
-                : '<div class="event-blocks-note">Zurzeit sind keine kommenden Events vorhanden.</div>';
+                ? '<div class="event-blocks-note" data-event-blocks-text="message_no_events">' . esc_html($this->get_text('message_no_events', 'Zurzeit sind keine Events vorhanden.')) . '</div>'
+                : '<div class="event-blocks-note" data-event-blocks-text="message_no_upcoming_events">' . esc_html($this->get_text('message_no_upcoming_events', 'Zurzeit sind keine kommenden Events vorhanden.')) . '</div>';
         }
 
         $attributes = wp_parse_args(
@@ -96,7 +97,11 @@ class Event_Blocks_Shortcode {
         $link = $event['link'];
         $notes = $event['notes'];
         $categories = $event['categories'];
-        $announcement_label = esc_html($this->get_announcement_label());
+        $announcement_label = esc_html($this->get_text('announcement_label', 'Vorankündigung'));
+        $time_label = esc_html($this->get_text('label_time', 'Uhrzeit'));
+        $location_label = esc_html($this->get_text('label_location', 'Ort'));
+        $notes_label = esc_html($this->get_text('label_notes', 'Hinweise'));
+        $more_info_label = esc_html($this->get_text('label_more_info', 'Mehr Informationen'));
 
         $classes = 'event-blocks-card';
         $attributes = '';
@@ -124,7 +129,7 @@ class Event_Blocks_Shortcode {
         $output .= '<div class="event-blocks-date-badge">' . $date . '</div>';
 
         if ($is_announcement) {
-            $output .= '<div class="event-blocks-status">' . $announcement_label . '</div>';
+            $output .= '<div class="event-blocks-status" data-event-blocks-text="announcement_label">' . $announcement_label . '</div>';
         }
 
         $output .= '</div>';
@@ -149,16 +154,16 @@ class Event_Blocks_Shortcode {
         $output .= '<div class="event-blocks-meta">';
 
         if ($time !== '' && !$is_announcement) {
-            $output .= '<div class="event-blocks-meta-item"><span class="event-blocks-meta-label">Uhrzeit</span><span class="event-blocks-meta-value">' . $time . ' Uhr</span></div>';
+            $output .= '<div class="event-blocks-meta-item"><span class="event-blocks-meta-label" data-event-blocks-text="label_time">' . $time_label . '</span><span class="event-blocks-meta-value" data-event-blocks-time-value="' . esc_attr($event['time']) . '">' . esc_html($this->format_time_value($event['time'])) . '</span></div>';
         }
         if ($location !== '') {
-            $output .= '<div class="event-blocks-meta-item"><span class="event-blocks-meta-label">Ort</span><span class="event-blocks-meta-value">' . $this->render_location($location, $location_link) . '</span></div>';
+            $output .= '<div class="event-blocks-meta-item"><span class="event-blocks-meta-label" data-event-blocks-text="label_location">' . $location_label . '</span><span class="event-blocks-meta-value">' . $this->render_location($location, $location_link) . '</span></div>';
         }
         $output .= '</div>';
 
         if (!empty($notes)) {
             $output .= '<div class="event-blocks-notes-block">';
-            $output .= '<div class="event-blocks-notes-title">Hinweise</div>';
+            $output .= '<div class="event-blocks-notes-title" data-event-blocks-text="label_notes">' . $notes_label . '</div>';
             $output .= '<ul class="event-blocks-notes">';
 
             foreach ($notes as $note) {
@@ -170,7 +175,7 @@ class Event_Blocks_Shortcode {
         }
 
         if ($link !== '') {
-            $output .= '<div class="event-blocks-card-footer">Mehr Informationen</div>';
+            $output .= '<div class="event-blocks-card-footer" data-event-blocks-text="label_more_info">' . $more_info_label . '</div>';
         }
 
         $output .= '</div>';
@@ -209,11 +214,35 @@ class Event_Blocks_Shortcode {
         return $compiled_attributes;
     }
 
-    private function get_announcement_label() {
-        $settings = $this->style_settings->get_settings();
+    private function get_settings() {
+        if ($this->settings === null) {
+            $this->settings = $this->style_settings->get_settings();
+        }
 
-        return isset($settings['announcement_label']) && $settings['announcement_label'] !== ''
-            ? $settings['announcement_label']
-            : 'Vorankündigung';
+        return $this->settings;
+    }
+
+    private function get_text($key, $default) {
+        $settings = $this->get_settings();
+
+        return isset($settings[$key]) && is_string($settings[$key]) && $settings[$key] !== ''
+            ? $settings[$key]
+            : $default;
+    }
+
+    private function format_time_value($time) {
+        $time = trim((string) $time);
+
+        if ($time === '') {
+            return '';
+        }
+
+        $suffix = trim($this->get_text('time_suffix', 'Uhr'));
+
+        if ($suffix === '') {
+            return $time;
+        }
+
+        return $time . ' ' . $suffix;
     }
 }

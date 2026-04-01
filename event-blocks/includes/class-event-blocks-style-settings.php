@@ -91,6 +91,48 @@ class Event_Blocks_Style_Settings {
                 'default' => 'Vorankündigung',
                 'description' => 'Dieser Text erscheint auf Kacheln, die als Vorankündigung markiert sind.',
             ),
+            'label_time' => array(
+                'label' => 'Beschriftung für Uhrzeit',
+                'type' => 'text',
+                'default' => 'Uhrzeit',
+                'description' => 'Beschriftung oberhalb der Uhrzeit in der Kachel.',
+            ),
+            'time_suffix' => array(
+                'label' => 'Suffix für Uhrzeit',
+                'type' => 'text',
+                'default' => 'Uhr',
+                'description' => 'Wird hinter die Uhrzeit gesetzt.',
+            ),
+            'label_location' => array(
+                'label' => 'Beschriftung für Ort',
+                'type' => 'text',
+                'default' => 'Ort',
+                'description' => 'Beschriftung oberhalb des Orts in der Kachel.',
+            ),
+            'label_notes' => array(
+                'label' => 'Beschriftung für Hinweise',
+                'type' => 'text',
+                'default' => 'Hinweise',
+                'description' => 'Titel der Hinweis-Box in der Kachel.',
+            ),
+            'label_more_info' => array(
+                'label' => 'Text für Link-Hinweis',
+                'type' => 'text',
+                'default' => 'Mehr Informationen',
+                'description' => 'Text im Footer klickbarer Kacheln.',
+            ),
+            'message_no_events' => array(
+                'label' => 'Text bei leerer Event-Liste',
+                'type' => 'text',
+                'default' => 'Zurzeit sind keine Events vorhanden.',
+                'description' => 'Wird angezeigt, wenn keine Events vorhanden sind.',
+            ),
+            'message_no_upcoming_events' => array(
+                'label' => 'Text bei keinen kommenden Events',
+                'type' => 'text',
+                'default' => 'Zurzeit sind keine kommenden Events vorhanden.',
+                'description' => 'Wird angezeigt, wenn nur kommende Events angefordert werden und keine vorhanden sind.',
+            ),
             'announcement_background' => array(
                 'label' => 'Vorankündigungs-Hintergrund',
                 'type' => 'color',

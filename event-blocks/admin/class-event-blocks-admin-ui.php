@@ -187,8 +187,8 @@ class Event_Blocks_Admin_UI {
                     <?php settings_fields('event_blocks_styles'); ?>
                     <div class="event-blocks-style-editor__card">
                         <div class="event-blocks-style-editor__card-head">
-                            <h2>Farben und Abstände</h2>
-                            <p>Alle Änderungen werden sofort in der Vorschau angezeigt. Gespeichert wird erst mit dem Button unten.</p>
+                            <h2>Design und Texte</h2>
+                            <p>Farben, Abstände und sichtbare Frontend-Texte werden hier zentral gepflegt. Gespeichert wird erst mit dem Button unten.</p>
                         </div>
                         <div class="event-blocks-style-editor__controls">
                             <?php foreach ($controls as $key => $control) : ?>
@@ -260,7 +260,7 @@ class Event_Blocks_Admin_UI {
                     class="regular-text"
                     aria-describedby="<?php echo esc_attr($description_id); ?>"
                     data-default="<?php echo esc_attr($control['default']); ?>"
-                    <?php if ($key === 'announcement_label') : ?>data-event-blocks-announcement-label<?php endif; ?>
+                    data-event-blocks-text-setting="<?php echo esc_attr($key); ?>"
                 >
             <?php else : ?>
                 <input
