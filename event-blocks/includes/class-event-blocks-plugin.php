@@ -19,7 +19,7 @@ class Event_Blocks_Plugin {
         $this->style_settings = new Event_Blocks_Style_Settings();
 
         $this->assets = new Event_Blocks_Assets($this->style_settings);
-        $this->shortcode = new Event_Blocks_Shortcode($repository, $normalizer, $this->assets);
+        $this->shortcode = new Event_Blocks_Shortcode($repository, $normalizer, $this->assets, $this->style_settings);
         $this->post_type = new Event_Blocks_Event_Post_Type();
         $this->meta_boxes = new Event_Blocks_Event_Meta_Boxes();
         $this->category_taxonomy = new Event_Blocks_Event_Category_Taxonomy();

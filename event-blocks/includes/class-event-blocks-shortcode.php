@@ -8,15 +8,18 @@ class Event_Blocks_Shortcode {
     private $repository;
     private $normalizer;
     private $assets;
+    private $style_settings;
 
     public function __construct(
         Event_Blocks_Event_Repository $repository,
         Event_Blocks_Event_Normalizer $normalizer,
-        Event_Blocks_Assets $assets
+        Event_Blocks_Assets $assets,
+        Event_Blocks_Style_Settings $style_settings
     ) {
         $this->repository = $repository;
         $this->normalizer = $normalizer;
         $this->assets = $assets;
+        $this->style_settings = $style_settings;
     }
 
     public function register() {
@@ -84,7 +87,8 @@ class Event_Blocks_Shortcode {
     private function render_card($event) {
         $title = esc_html($event['title']);
         $title_attr = esc_attr($event['title']);
-        $date = esc_html($this->normalizer->format_date($event['timestamp']));
+        $date = esc_html($event['display_date']);
+        $is_announcement = !empty($event['is_announcement']);
         $time = esc_html($event['time']);
         $location = esc_html($event['location']);
         $location_link = $event['location_link'];
@@ -92,6 +96,7 @@ class Event_Blocks_Shortcode {
         $link = $event['link'];
         $notes = $event['notes'];
         $categories = $event['categories'];
+        $announcement_label = esc_html($this->get_announcement_label());
 
         $classes = 'event-blocks-card';
         $attributes = '';
@@ -115,7 +120,14 @@ class Event_Blocks_Shortcode {
 
         $output .= '<div class="event-blocks-content">';
         $output .= '<div class="event-blocks-topline">';
+        $output .= '<div class="event-blocks-date-group">';
         $output .= '<div class="event-blocks-date-badge">' . $date . '</div>';
+
+        if ($is_announcement) {
+            $output .= '<div class="event-blocks-status">' . $announcement_label . '</div>';
+        }
+
+        $output .= '</div>';
 
         if (!empty($categories)) {
             $output .= '<div class="event-blocks-badges">';
@@ -136,7 +148,7 @@ class Event_Blocks_Shortcode {
         $output .= '<h3 class="event-blocks-title">' . $title . '</h3>';
         $output .= '<div class="event-blocks-meta">';
 
-        if ($time !== '') {
+        if ($time !== '' && !$is_announcement) {
             $output .= '<div class="event-blocks-meta-item"><span class="event-blocks-meta-label">Uhrzeit</span><span class="event-blocks-meta-value">' . $time . ' Uhr</span></div>';
         }
         if ($location !== '') {
@@ -195,5 +207,13 @@ class Event_Blocks_Shortcode {
         }
 
         return $compiled_attributes;
+    }
+
+    private function get_announcement_label() {
+        $settings = $this->style_settings->get_settings();
+
+        return isset($settings['announcement_label']) && $settings['announcement_label'] !== ''
+            ? $settings['announcement_label']
+            : 'Vorankündigung';
     }
 }

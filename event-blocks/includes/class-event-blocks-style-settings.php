@@ -85,6 +85,44 @@ class Event_Blocks_Style_Settings {
                 'css_variable' => '--event-blocks-note-bg',
                 'description' => 'Hintergrund für die Hinweise und Leermeldungen.',
             ),
+            'announcement_label' => array(
+                'label' => 'Text für Vorankündigungen',
+                'type' => 'text',
+                'default' => 'Vorankündigung',
+                'description' => 'Dieser Text erscheint auf Kacheln, die als Vorankündigung markiert sind.',
+            ),
+            'announcement_background' => array(
+                'label' => 'Vorankündigungs-Hintergrund',
+                'type' => 'color',
+                'default' => '#f4f7f2',
+                'css_variable' => '--event-blocks-announcement-bg',
+                'description' => 'Hintergrundfarbe des Vorankündigungs-Labels.',
+            ),
+            'announcement_text_color' => array(
+                'label' => 'Vorankündigungs-Text',
+                'type' => 'color',
+                'default' => '#233927',
+                'css_variable' => '--event-blocks-announcement-text',
+                'description' => 'Textfarbe des Vorankündigungs-Labels.',
+            ),
+            'announcement_border_color' => array(
+                'label' => 'Vorankündigungs-Rahmen',
+                'type' => 'color',
+                'default' => '#d8dfd4',
+                'css_variable' => '--event-blocks-announcement-border',
+                'description' => 'Rahmenfarbe des Vorankündigungs-Labels.',
+            ),
+            'announcement_radius' => array(
+                'label' => 'Vorankündigungs-Radius',
+                'type' => 'range',
+                'default' => 999,
+                'min' => 0,
+                'max' => 999,
+                'step' => 1,
+                'unit' => 'px',
+                'css_variable' => '--event-blocks-announcement-radius',
+                'description' => 'Eckenradius des Vorankündigungs-Labels.',
+            ),
         );
     }
 
@@ -124,6 +162,11 @@ class Event_Blocks_Style_Settings {
                 continue;
             }
 
+            if ($control['type'] === 'text') {
+                $sanitized[$key] = $this->sanitize_text($raw_value, $control['default']);
+                continue;
+            }
+
             $sanitized[$key] = $this->sanitize_range_value($raw_value, $control);
         }
 
@@ -152,6 +195,10 @@ class Event_Blocks_Style_Settings {
 
         foreach ($controls as $key => $control) {
             $value = $settings[$key];
+
+            if (!isset($control['css_variable'])) {
+                continue;
+            }
 
             if ($control['type'] === 'range') {
                 $value .= $control['unit'];
@@ -184,6 +231,16 @@ class Event_Blocks_Style_Settings {
 
         if ($value > $maximum) {
             return $maximum;
+        }
+
+        return $value;
+    }
+
+    private function sanitize_text($value, $default) {
+        $value = trim(sanitize_text_field((string) $value));
+
+        if ($value === '') {
+            return $default;
         }
 
         return $value;

@@ -20,20 +20,36 @@ class Event_Blocks_Event_Meta_Boxes {
         wp_nonce_field('event_blocks_save_event', 'event_blocks_event_nonce');
 
         $date = get_post_meta($post->ID, EVENT_BLOCKS_META_DATE, true);
+        $is_announcement = get_post_meta($post->ID, EVENT_BLOCKS_META_IS_ANNOUNCEMENT, true) === '1';
         $time = get_post_meta($post->ID, EVENT_BLOCKS_META_TIME, true);
         $location = get_post_meta($post->ID, EVENT_BLOCKS_META_LOCATION, true);
         $location_link = get_post_meta($post->ID, EVENT_BLOCKS_META_LOCATION_LINK, true);
         $external_link = get_post_meta($post->ID, EVENT_BLOCKS_META_EXTERNAL_LINK, true);
         $image_url = get_post_meta($post->ID, EVENT_BLOCKS_META_IMAGE_URL, true);
         $notes = get_post_meta($post->ID, EVENT_BLOCKS_META_NOTES, true);
+        $timestamp = (int) get_post_meta($post->ID, EVENT_BLOCKS_META_START_TIMESTAMP, true);
+
+        if ($date === '' && $timestamp > 0) {
+            $date = wp_date('Y-m-d', $timestamp);
+        }
         ?>
         <table class="form-table" role="presentation">
             <tbody>
                 <tr>
-                    <th scope="row"><label for="event-blocks-date">Datum <span aria-hidden="true">*</span></label></th>
+                    <th scope="row">Termin <span aria-hidden="true">*</span></th>
                     <td>
-                        <input id="event-blocks-date" name="event_blocks_date" type="date" value="<?php echo esc_attr($date); ?>" class="regular-text" required>
-                        <p class="description">Pflichtfeld. Die Event-Liste im Frontend wird nach diesem Datum sortiert.</p>
+                        <fieldset>
+                            <label for="event-blocks-is-announcement">
+                                <input id="event-blocks-is-announcement" name="event_blocks_is_announcement" type="checkbox" value="1" <?php checked($is_announcement); ?>>
+                                Als Vorankündigung markieren
+                            </label>
+                            <p class="description">Bei einer Vorankündigung bleibt intern ein exaktes Datum gespeichert, im Frontend wird aber nur der Monat angezeigt.</p>
+                            <p>
+                                <label for="event-blocks-date"><strong>Exaktes Datum</strong></label><br>
+                                <input id="event-blocks-date" name="event_blocks_date" type="date" value="<?php echo esc_attr($date); ?>" class="regular-text" required>
+                            </p>
+                            <p class="description">Pflichtfeld für alle Events. Die Event-Liste im Frontend wird chronologisch sortiert; bei Vorankündigungen wird trotzdem nur Monat und Jahr dargestellt.</p>
+                        </fieldset>
                     </td>
                 </tr>
                 <tr>
@@ -115,6 +131,16 @@ class Event_Blocks_Event_Meta_Boxes {
                 update_post_meta($post_id, $meta_key, $value);
             }
         }
+
+        $is_announcement = isset($_POST['event_blocks_is_announcement']) ? '1' : '';
+
+        if ($is_announcement === '1') {
+            update_post_meta($post_id, EVENT_BLOCKS_META_IS_ANNOUNCEMENT, '1');
+        } else {
+            delete_post_meta($post_id, EVENT_BLOCKS_META_IS_ANNOUNCEMENT);
+        }
+
+        delete_post_meta($post_id, EVENT_BLOCKS_META_ANNOUNCEMENT_MONTH);
 
         $timestamp = $this->build_start_timestamp(
             isset($_POST['event_blocks_date']) ? wp_unslash($_POST['event_blocks_date']) : '',

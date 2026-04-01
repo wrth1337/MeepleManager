@@ -44,9 +44,10 @@ class Event_Blocks_Admin_UI {
     public function render_event_column($column, $post_id) {
         if ($column === 'event_date') {
             $timestamp = (int) get_post_meta($post_id, EVENT_BLOCKS_META_START_TIMESTAMP, true);
+            $is_announcement = get_post_meta($post_id, EVENT_BLOCKS_META_IS_ANNOUNCEMENT, true) === '1';
 
             if ($timestamp > 0) {
-                echo esc_html($this->normalizer->format_date($timestamp));
+                echo esc_html($this->normalizer->format_event_date($timestamp, $is_announcement));
             } else {
                 echo '-';
             }
@@ -250,6 +251,17 @@ class Event_Blocks_Admin_UI {
                     >
                     <output id="<?php echo esc_attr($output_id); ?>" class="event-blocks-style-editor__range-value"><?php echo esc_html($value . $control['unit']); ?></output>
                 </div>
+            <?php elseif ($control['type'] === 'text') : ?>
+                <input
+                    id="<?php echo esc_attr($field_id); ?>"
+                    name="<?php echo esc_attr($field_name); ?>"
+                    type="text"
+                    value="<?php echo esc_attr($value); ?>"
+                    class="regular-text"
+                    aria-describedby="<?php echo esc_attr($description_id); ?>"
+                    data-default="<?php echo esc_attr($control['default']); ?>"
+                    <?php if ($key === 'announcement_label') : ?>data-event-blocks-announcement-label<?php endif; ?>
+                >
             <?php else : ?>
                 <input
                     id="<?php echo esc_attr($field_id); ?>"
@@ -272,6 +284,8 @@ class Event_Blocks_Admin_UI {
             array(
                 'title' => 'Sommerkonzert im Park',
                 'timestamp' => strtotime('2026-07-18 19:30:00'),
+                'display_date' => $this->normalizer->format_event_date(strtotime('2026-07-18 19:30:00'), false),
+                'is_announcement' => false,
                 'time' => '19:30',
                 'location' => 'Stadtpark Nord',
                 'location_link' => 'https://example.com/anfahrt',
@@ -295,20 +309,22 @@ class Event_Blocks_Admin_UI {
                 ),
             ),
             array(
-                'title' => 'Mitgliederversammlung',
-                'timestamp' => strtotime('2026-08-05 18:00:00'),
-                'time' => '18:00',
+                'title' => 'Herbstmarkt 2026',
+                'timestamp' => strtotime('2026-09-01 00:00:00'),
+                'display_date' => $this->normalizer->format_event_date(strtotime('2026-09-01 00:00:00'), true),
+                'is_announcement' => true,
+                'time' => '',
                 'location' => 'Vereinsheim West',
                 'location_link' => '',
                 'image' => '',
                 'link' => '',
                 'notes' => array(
-                    'Tagesordnung folgt separat per E-Mail',
+                    'Das genaue Datum wird noch bekannt gegeben',
                 ),
                 'categories' => array(
                     array(
-                        'name' => 'Intern',
-                        'slug' => 'intern',
+                        'name' => 'Vorschau',
+                        'slug' => 'vorschau',
                         'color' => '#7b8c3a',
                     ),
                 ),

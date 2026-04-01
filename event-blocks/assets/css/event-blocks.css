@@ -72,6 +72,13 @@
     margin: 0 0 14px;
 }
 
+.event-blocks-date-group {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
 .event-blocks-date-badge {
     display: inline-flex;
     align-items: center;
@@ -112,6 +119,20 @@
     color: var(--event-blocks-text-color, #1a281d);
 }
 
+.event-blocks-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: var(--event-blocks-announcement-radius, 999px);
+    background: var(--event-blocks-announcement-bg, #f4f7f2);
+    border: 1px solid var(--event-blocks-announcement-border, #d8dfd4);
+    color: var(--event-blocks-announcement-text, #233927);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
 .event-blocks-meta {
     display: flex;
     flex-wrap: wrap;
@@ -125,6 +146,7 @@
     border-radius: 14px;
     background: var(--event-blocks-meta-bg, #f1f5ee);
     border: 1px solid var(--event-blocks-border-color, #dce5d5);
+    box-sizing: border-box;
 }
 
 .event-blocks-meta-label {
@@ -241,6 +263,10 @@
 
     .event-blocks-topline {
         align-items: flex-start;
+    }
+
+    .event-blocks-date-group {
+        width: 100%;
     }
 
     .event-blocks-date-badge {

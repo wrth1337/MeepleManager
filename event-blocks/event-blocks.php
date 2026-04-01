@@ -25,6 +25,8 @@ define('EVENT_BLOCKS_META_EXTERNAL_LINK', '_event_blocks_external_link');
 define('EVENT_BLOCKS_META_IMAGE_URL', '_event_blocks_image_url');
 define('EVENT_BLOCKS_META_NOTES', '_event_blocks_notes');
 define('EVENT_BLOCKS_META_START_TIMESTAMP', '_event_blocks_start_timestamp');
+define('EVENT_BLOCKS_META_IS_ANNOUNCEMENT', '_event_blocks_is_announcement');
+define('EVENT_BLOCKS_META_ANNOUNCEMENT_MONTH', '_event_blocks_announcement_month');
 define('EVENT_BLOCKS_TERM_META_COLOR', '_event_blocks_color');
 define('EVENT_BLOCKS_OPTION_STYLES', 'event_blocks_styles');
 

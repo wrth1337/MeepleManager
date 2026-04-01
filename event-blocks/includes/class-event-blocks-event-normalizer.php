@@ -12,6 +12,8 @@ class Event_Blocks_Event_Normalizer {
 
         $title = trim($post->post_title);
         $date = trim((string) get_post_meta($post->ID, EVENT_BLOCKS_META_DATE, true));
+        $is_announcement = get_post_meta($post->ID, EVENT_BLOCKS_META_IS_ANNOUNCEMENT, true) === '1';
+        $announcement_month = trim((string) get_post_meta($post->ID, EVENT_BLOCKS_META_ANNOUNCEMENT_MONTH, true));
         $time = trim((string) get_post_meta($post->ID, EVENT_BLOCKS_META_TIME, true));
         $location = trim((string) get_post_meta($post->ID, EVENT_BLOCKS_META_LOCATION, true));
         $location_link = trim((string) get_post_meta($post->ID, EVENT_BLOCKS_META_LOCATION_LINK, true));
@@ -19,7 +21,15 @@ class Event_Blocks_Event_Normalizer {
         $image = $this->get_image_url($post);
         $timestamp = (int) get_post_meta($post->ID, EVENT_BLOCKS_META_START_TIMESTAMP, true);
 
-        if ($title === '' || $date === '' || $timestamp <= 0) {
+        if ($title === '' || $timestamp <= 0) {
+            return null;
+        }
+
+        if ($date === '' && $timestamp > 0) {
+            $date = wp_date('Y-m-d', $timestamp);
+        }
+
+        if ($date === '') {
             return null;
         }
 
@@ -27,6 +37,9 @@ class Event_Blocks_Event_Normalizer {
             'id' => $post->ID,
             'title' => $title,
             'date' => $date,
+            'is_announcement' => $is_announcement,
+            'announcement_month' => $announcement_month !== '' ? $announcement_month : wp_date('Y-m', $timestamp),
+            'display_date' => $this->format_event_date($timestamp, $is_announcement),
             'time' => $time,
             'location' => $location,
             'location_link' => $location_link,
@@ -40,6 +53,18 @@ class Event_Blocks_Event_Normalizer {
 
     public function format_date($timestamp) {
         return wp_date('d.m.Y', $timestamp);
+    }
+
+    public function format_announcement_month($timestamp) {
+        return wp_date('F Y', $timestamp);
+    }
+
+    public function format_event_date($timestamp, $is_announcement = false) {
+        if ($is_announcement) {
+            return $this->format_announcement_month($timestamp);
+        }
+
+        return $this->format_date($timestamp);
     }
 
     public function normalize_notes($notes) {
