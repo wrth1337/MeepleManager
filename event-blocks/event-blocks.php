@@ -1,9 +1,9 @@
 <?php
 /**
- * Plugin Name: Event Blocks
- * Description: Verwaltet Events als WordPress-Inhaltstyp und zeigt sie als Event-Kacheln per Shortcode an.
+ * Plugin Name: Event-Blocks
+ * Description: Manages events as a WordPress post type and displays them as event tiles using a shortcode.
  * Version: 3.0.0
- * Author: Verein
+ * Author: wrth1337
  */
 
 if (!defined('ABSPATH')) {
