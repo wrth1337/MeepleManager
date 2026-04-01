@@ -157,7 +157,7 @@ class Event_Blocks_Shortcode {
             $output .= '<div class="event-blocks-meta-item"><span class="event-blocks-meta-label" data-event-blocks-text="label_time">' . $time_label . '</span><span class="event-blocks-meta-value" data-event-blocks-time-value="' . esc_attr($event['time']) . '">' . esc_html($this->format_time_value($event['time'])) . '</span></div>';
         }
         if ($location !== '') {
-            $output .= '<div class="event-blocks-meta-item"><span class="event-blocks-meta-label" data-event-blocks-text="label_location">' . $location_label . '</span><span class="event-blocks-meta-value">' . $this->render_location($location, $location_link) . '</span></div>';
+            $output .= $this->render_location_meta_item($location_label, $location, $location_link);
         }
         $output .= '</div>';
 
@@ -192,6 +192,19 @@ class Event_Blocks_Shortcode {
         return sprintf(
             '<a class="event-blocks-location-link" href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
             esc_url($location_link),
+            $location
+        );
+    }
+
+    private function render_location_meta_item($location_label, $location, $location_link) {
+        if ($location_link === '') {
+            return '<div class="event-blocks-meta-item"><span class="event-blocks-meta-label" data-event-blocks-text="label_location">' . $location_label . '</span><span class="event-blocks-meta-value">' . $location . '</span></div>';
+        }
+
+        return sprintf(
+            '<a class="event-blocks-meta-item event-blocks-meta-item--link" href="%1$s" target="_blank" rel="noopener noreferrer"><span class="event-blocks-meta-label" data-event-blocks-text="label_location">%2$s</span><span class="event-blocks-meta-value">%3$s</span><span class="event-blocks-meta-link-indicator" aria-hidden="true">↗</span></a>',
+            esc_url($location_link),
+            $location_label,
             $location
         );
     }
