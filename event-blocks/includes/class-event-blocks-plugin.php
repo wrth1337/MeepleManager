@@ -5,6 +5,7 @@ if (!defined('ABSPATH')) {
 }
 
 class Event_Blocks_Plugin {
+    private $style_settings;
     private $assets;
     private $shortcode;
     private $post_type;
@@ -15,13 +16,14 @@ class Event_Blocks_Plugin {
     public function __construct() {
         $repository = new Event_Blocks_Event_Repository();
         $normalizer = new Event_Blocks_Event_Normalizer();
+        $this->style_settings = new Event_Blocks_Style_Settings();
 
-        $this->assets = new Event_Blocks_Assets();
+        $this->assets = new Event_Blocks_Assets($this->style_settings);
         $this->shortcode = new Event_Blocks_Shortcode($repository, $normalizer, $this->assets);
         $this->post_type = new Event_Blocks_Event_Post_Type();
         $this->meta_boxes = new Event_Blocks_Event_Meta_Boxes();
         $this->category_taxonomy = new Event_Blocks_Event_Category_Taxonomy();
-        $this->admin_ui = new Event_Blocks_Admin_UI($normalizer);
+        $this->admin_ui = new Event_Blocks_Admin_UI($normalizer, $this->style_settings, $this->shortcode, $this->assets);
     }
 
     public function run() {
@@ -34,6 +36,9 @@ class Event_Blocks_Plugin {
         add_action(EVENT_BLOCKS_CATEGORY_TAXONOMY . '_edit_form_fields', array($this->category_taxonomy, 'render_edit_fields'));
         add_action('created_' . EVENT_BLOCKS_CATEGORY_TAXONOMY, array($this->category_taxonomy, 'save_term_meta'));
         add_action('edited_' . EVENT_BLOCKS_CATEGORY_TAXONOMY, array($this->category_taxonomy, 'save_term_meta'));
+        add_action('admin_menu', array($this->admin_ui, 'register_admin_menu'));
+        add_action('admin_init', array($this->admin_ui, 'register_style_settings'));
+        add_action('admin_enqueue_scripts', array($this->admin_ui, 'enqueue_admin_assets'));
         add_filter('manage_' . EVENT_BLOCKS_POST_TYPE . '_posts_columns', array($this->admin_ui, 'filter_event_columns'));
         add_action('manage_' . EVENT_BLOCKS_POST_TYPE . '_posts_custom_column', array($this->admin_ui, 'render_event_column'), 10, 2);
         add_filter('manage_edit-' . EVENT_BLOCKS_POST_TYPE . '_sortable_columns', array($this->admin_ui, 'register_sortable_event_columns'));

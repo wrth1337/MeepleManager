@@ -26,9 +26,11 @@ define('EVENT_BLOCKS_META_IMAGE_URL', '_event_blocks_image_url');
 define('EVENT_BLOCKS_META_NOTES', '_event_blocks_notes');
 define('EVENT_BLOCKS_META_START_TIMESTAMP', '_event_blocks_start_timestamp');
 define('EVENT_BLOCKS_TERM_META_COLOR', '_event_blocks_color');
+define('EVENT_BLOCKS_OPTION_STYLES', 'event_blocks_styles');
 
 require_once EVENT_BLOCKS_DIR . 'includes/class-event-blocks-event-normalizer.php';
 require_once EVENT_BLOCKS_DIR . 'includes/class-event-blocks-event-repository.php';
+require_once EVENT_BLOCKS_DIR . 'includes/class-event-blocks-style-settings.php';
 require_once EVENT_BLOCKS_DIR . 'includes/class-event-blocks-assets.php';
 require_once EVENT_BLOCKS_DIR . 'includes/class-event-blocks-shortcode.php';
 require_once EVENT_BLOCKS_DIR . 'includes/class-event-blocks-activator.php';

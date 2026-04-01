@@ -53,13 +53,24 @@ class Event_Blocks_Shortcode {
             }
         }
 
+        return $this->render_events($events, array('class' => 'event-blocks-grid'), $atts['show_past'] === '1');
+    }
+
+    public function render_events($events, $wrapper_attributes = array(), $show_past = false) {
         if (empty($events)) {
-            return $atts['show_past'] === '1'
+            return $show_past
                 ? '<div class="event-blocks-note">Zurzeit sind keine Events vorhanden.</div>'
                 : '<div class="event-blocks-note">Zurzeit sind keine kommenden Events vorhanden.</div>';
         }
 
-        $output = '<div class="event-blocks-grid">';
+        $attributes = wp_parse_args(
+            $wrapper_attributes,
+            array(
+                'class' => 'event-blocks-grid',
+            )
+        );
+
+        $output = '<div' . $this->build_html_attributes($attributes) . '>';
 
         foreach ($events as $event) {
             $output .= $this->render_card($event);
@@ -166,5 +177,23 @@ class Event_Blocks_Shortcode {
             esc_url($location_link),
             $location
         );
+    }
+
+    private function build_html_attributes($attributes) {
+        $compiled_attributes = '';
+
+        foreach ($attributes as $name => $value) {
+            if (!is_string($name) || $name === '' || $value === '') {
+                continue;
+            }
+
+            $compiled_attributes .= sprintf(
+                ' %1$s="%2$s"',
+                esc_attr($name),
+                esc_attr((string) $value)
+            );
+        }
+
+        return $compiled_attributes;
     }
 }
