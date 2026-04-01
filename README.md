@@ -35,6 +35,12 @@ You can:
 - customize card styling
 - edit visible frontend texts
 
+## Installation
+
+1. Download `event-blocks.zip` from the matching GitHub release.
+2. In WordPress admin, go to `Plugins > Add New > Upload Plugin`.
+3. Upload the ZIP file, install it, and activate the plugin.
+
 ## Notes
 
 - Events are sorted chronologically by their internal event date
