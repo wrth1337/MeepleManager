@@ -34,7 +34,7 @@ class Event_Blocks_Event_Repository {
         } else {
             $query_args['meta_query'][] = array(
                 'key' => EVENT_BLOCKS_META_START_TIMESTAMP,
-                'value' => current_time('timestamp'),
+                'value' => $this->get_today_start_timestamp(),
                 'compare' => '>=',
                 'type' => 'NUMERIC',
             );
@@ -43,5 +43,15 @@ class Event_Blocks_Event_Repository {
         $query = new WP_Query($query_args);
 
         return $query->posts;
+    }
+
+    private function get_today_start_timestamp() {
+        try {
+            $today = new DateTimeImmutable('today', wp_timezone());
+        } catch (Exception $exception) {
+            return strtotime(wp_date('Y-m-d 00:00:00'));
+        }
+
+        return $today->getTimestamp();
     }
 }
