@@ -128,6 +128,38 @@
     text-align: right;
 }
 
+.meeple-manager-game-style-editor__image-picker {
+    display: grid;
+    gap: 10px;
+}
+
+.meeple-manager-game-style-editor__image-picker-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.meeple-manager-game-style-editor__image-picker-preview {
+    display: grid;
+    width: 72px;
+    height: 72px;
+    place-items: center;
+    overflow: hidden;
+    border: 1px solid #d0d6dc;
+    border-radius: 6px;
+    background: #f6f7f7;
+    color: #646970;
+    font-size: 11px;
+    text-align: center;
+}
+
+.meeple-manager-game-style-editor__image-picker-preview img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 .meeple-manager-game-style-editor__actions {
     display: flex;
     flex-wrap: wrap;

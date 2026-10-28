@@ -38,6 +38,7 @@ class Meeple_Manager_Game_Style_Settings {
             return;
         }
 
+        wp_enqueue_media();
         wp_enqueue_style(
             'meeple-manager-frontend',
             MEEPLE_MANAGER_URL . 'assets/css/meeple-manager.css',
@@ -82,6 +83,18 @@ class Meeple_Manager_Game_Style_Settings {
         }
 
         $settings = self::get_settings();
+        $placeholder_image = $settings['placeholder_image_id']
+            ? wp_get_attachment_image(
+                $settings['placeholder_image_id'],
+                'meeple-manager-game-card',
+                false,
+                array('class' => 'meeple-manager-game-card__image meeple-manager-game-card__image--placeholder', 'alt' => '')
+            )
+            : '';
+
+        if ($placeholder_image === '') {
+            $placeholder_image = '<div class="meeple-manager-game-card__placeholder">Platzhalterbild</div>';
+        }
         ?>
         <div class="wrap meeple-manager-admin meeple-manager-game-style-editor">
             <h1>Spiele-Design</h1>
@@ -110,11 +123,11 @@ class Meeple_Manager_Game_Style_Settings {
                         <h3>Öffentlicher Katalog</h3>
                         <ul class="meeple-manager-catalog">
                             <li class="meeple-manager-catalog__item">
-                                <div class="meeple-manager-game-card__image-wrap"><div class="meeple-manager-game-card__placeholder">Spielbild</div></div>
+                                <div class="meeple-manager-game-card__image-wrap" data-placeholder-image-target><?php echo $placeholder_image; ?><?php echo Meeple_Manager_Shortcodes::render_favorite_badge(); ?></div>
                                 <h2 class="meeple-manager-catalog__title">Catan – Das Duell</h2>
                             </li>
                             <li class="meeple-manager-catalog__item">
-                                <div class="meeple-manager-game-card__image-wrap"><div class="meeple-manager-game-card__placeholder">Spielbild</div></div>
+                                <div class="meeple-manager-game-card__image-wrap" data-placeholder-image-target><?php echo $placeholder_image; ?></div>
                                 <h2 class="meeple-manager-catalog__title">Die Crew</h2>
                             </li>
                         </ul>
@@ -184,6 +197,23 @@ class Meeple_Manager_Game_Style_Settings {
                 'default' => '#f1f5ee',
                 'css_variable' => '--meeple-manager-game-placeholder-bg',
             ),
+            'placeholder_image_id' => array(
+                'section' => 'Spielekatalog',
+                'label' => 'Platzhalterbild',
+                'type' => 'image',
+                'default' => 0,
+            ),
+            'placeholder_opacity' => array(
+                'section' => 'Spielekatalog',
+                'label' => 'Deckkraft des Platzhalterbilds',
+                'type' => 'range',
+                'default' => 40,
+                'min' => 0,
+                'max' => 100,
+                'step' => 5,
+                'unit' => '%',
+                'css_variable' => '--meeple-manager-game-placeholder-opacity',
+            ),
             'table_background' => array(
                 'section' => 'Verleihbereich',
                 'label' => 'Tabellenhintergrund',
@@ -247,6 +277,20 @@ class Meeple_Manager_Game_Style_Settings {
                 'default' => '#bb3030',
                 'css_variable' => '--meeple-manager-game-category-red',
             ),
+            'favorite_flame_outer_color' => array(
+                'section' => 'Favoriten',
+                'label' => 'Äußere Flammenfarbe',
+                'type' => 'color',
+                'default' => '#f05a28',
+                'css_variable' => '--meeple-manager-favorite-flame-outer',
+            ),
+            'favorite_flame_inner_color' => array(
+                'section' => 'Favoriten',
+                'label' => 'Innere Flammenfarbe',
+                'type' => 'color',
+                'default' => '#ffc247',
+                'css_variable' => '--meeple-manager-favorite-flame-inner',
+            ),
         );
     }
 
@@ -283,6 +327,12 @@ class Meeple_Manager_Game_Style_Settings {
                 continue;
             }
 
+            if ($control['type'] === 'image') {
+                $image_id = absint($input[$key]);
+                $settings[$key] = $image_id > 0 && wp_attachment_is_image($image_id) ? $image_id : 0;
+                continue;
+            }
+
             $value = absint($input[$key]);
             $settings[$key] = min((int) $control['max'], max((int) $control['min'], $value));
         }
@@ -295,6 +345,10 @@ class Meeple_Manager_Game_Style_Settings {
         $declarations = array();
 
         foreach (self::get_controls() as $key => $control) {
+            if ($control['type'] === 'image') {
+                continue;
+            }
+
             $value = $settings[$key];
 
             if ($control['type'] === 'range') {
@@ -311,9 +365,25 @@ class Meeple_Manager_Game_Style_Settings {
         $field_id = 'meeple-manager-game-style-' . $key;
         $field_name = MEEPLE_MANAGER_OPTION_GAME_STYLES . '[' . $key . ']';
         ?>
-        <p class="meeple-manager-game-style-editor__control">
+        <div class="meeple-manager-game-style-editor__control">
             <label for="<?php echo esc_attr($field_id); ?>"><?php echo esc_html($control['label']); ?></label>
-            <?php if ($control['type'] === 'range') : ?>
+            <?php if ($control['type'] === 'image') : ?>
+                <?php $image_url = $value > 0 ? wp_get_attachment_image_url($value, 'thumbnail') : false; ?>
+                <div class="meeple-manager-game-style-editor__image-picker">
+                    <input id="<?php echo esc_attr($field_id); ?>" type="hidden" name="<?php echo esc_attr($field_name); ?>" value="<?php echo esc_attr($value); ?>" data-placeholder-image-id data-default="0">
+                    <div class="meeple-manager-game-style-editor__image-picker-actions">
+                        <button type="button" class="button" data-select-placeholder-image>Bild auswählen</button>
+                        <button type="button" class="button" data-clear-placeholder-image>Bild entfernen</button>
+                    </div>
+                    <div class="meeple-manager-game-style-editor__image-picker-preview" data-placeholder-image-control-preview>
+                        <?php if ($image_url) : ?>
+                            <img src="<?php echo esc_url($image_url); ?>" alt="">
+                        <?php else : ?>
+                            <span>Kein Platzhalterbild ausgewählt</span>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            <?php elseif ($control['type'] === 'range') : ?>
                 <span class="meeple-manager-game-style-editor__range">
                     <input
                         id="<?php echo esc_attr($field_id); ?>"
@@ -342,7 +412,7 @@ class Meeple_Manager_Game_Style_Settings {
                     data-default="<?php echo esc_attr($control['default']); ?>"
                 >
             <?php endif; ?>
-        </p>
+        </div>
         <?php
     }
 }

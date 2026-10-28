@@ -38,6 +38,31 @@ class Meeple_Manager_Shortcodes {
             return '<p class="meeple-manager-empty">Derzeit sind keine Spiele eingetragen.</p>';
         }
 
+        $favorite_games = array();
+        $regular_games = array();
+
+        foreach ($games as $game) {
+            if (get_post_meta($game->ID, MEEPLE_MANAGER_META_FAVORITE, true) === '1') {
+                $favorite_games[] = $game;
+            } else {
+                $regular_games[] = $game;
+            }
+        }
+
+        $games = array_merge($favorite_games, $regular_games);
+        $game_styles = Meeple_Manager_Game_Style_Settings::get_settings();
+        $placeholder_image_id = (int) $game_styles['placeholder_image_id'];
+        $placeholder_image = $placeholder_image_id > 0
+            ? wp_get_attachment_image(
+                $placeholder_image_id,
+                'meeple-manager-game-card',
+                false,
+                array(
+                    'class' => 'meeple-manager-game-card__image meeple-manager-game-card__image--placeholder',
+                    'alt' => '',
+                )
+            )
+            : '';
         $output = '<div class="meeple-manager-catalog-wrap"><ul class="meeple-manager-catalog">';
 
         foreach ($games as $game) {
@@ -50,12 +75,18 @@ class Meeple_Manager_Shortcodes {
                 )
             );
 
-            if ($image === '') {
-                $image = '<div class="meeple-manager-game-card__placeholder">Kein Bild hinterlegt</div>';
+            if (!is_string($image) || $image === '') {
+                $image = $placeholder_image !== ''
+                    ? $placeholder_image
+                    : '<div class="meeple-manager-game-card__placeholder">Kein Bild hinterlegt</div>';
             }
 
             $output .= '<li class="meeple-manager-catalog__item">';
-            $output .= '<div class="meeple-manager-game-card__image-wrap">' . $image . '</div>';
+            $output .= '<div class="meeple-manager-game-card__image-wrap">' . $image;
+            if (get_post_meta($game->ID, MEEPLE_MANAGER_META_FAVORITE, true) === '1') {
+                $output .= self::render_favorite_badge();
+            }
+            $output .= '</div>';
             $output .= '<h2 class="meeple-manager-catalog__title">' . esc_html($game->post_title) . '</h2>';
             $output .= '</li>';
         }
@@ -63,6 +94,14 @@ class Meeple_Manager_Shortcodes {
         $output .= '</ul></div>';
 
         return $output;
+    }
+
+    public static function render_favorite_badge() {
+        return '<span class="meeple-manager-favorite-badge" role="img" aria-label="Aktueller Favorit" title="Heiß" tabindex="0">'
+            . '<svg class="meeple-manager-favorite-badge__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
+            . '<path class="meeple-manager-favorite-badge__flame-outer" d="M12 23a8 8 0 0 1-8-8c0-3.6 2.1-6.7 5.4-8.1.2 2.1 1.4 3.4 2.5 4.2C13 7.5 12.9 4.1 11.5 1 16.7 4.7 20 9.2 20 15a8 8 0 0 1-8 8Z"/>'
+            . '<path class="meeple-manager-favorite-badge__flame-inner" d="M12 20a4.5 4.5 0 0 1-4.5-4.5c0-1.7.9-3.2 2.3-4 .3 1.1 1 1.8 1.9 2.2.8-1.1 1.1-2.6.8-4.2 2.3 1.8 4 3.8 4 6A4.5 4.5 0 0 1 12 20Z"/>'
+            . '</svg><span class="meeple-manager-favorite-badge__tooltip" aria-hidden="true">Heiß</span></span>';
     }
 
     public function render_lending_button($attributes) {

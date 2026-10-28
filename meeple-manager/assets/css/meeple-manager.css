@@ -3,6 +3,7 @@
     --meeple-manager-game-card-border: #d8dfd4;
     --meeple-manager-game-title-color: #1a281d;
     --meeple-manager-game-placeholder-bg: #f1f5ee;
+    --meeple-manager-game-placeholder-opacity: 40%;
     --meeple-manager-game-card-radius: 10px;
     --meeple-manager-game-table-bg: #fff;
     --meeple-manager-game-table-header-bg: #f1f5ee;
@@ -13,6 +14,8 @@
     --meeple-manager-game-category-green: #25803b;
     --meeple-manager-game-category-yellow: #9a7000;
     --meeple-manager-game-category-red: #bb3030;
+    --meeple-manager-favorite-flame-outer: #f05a28;
+    --meeple-manager-favorite-flame-inner: #ffc247;
 }
 
 .meeple-manager-catalog-wrap ul.meeple-manager-catalog,
@@ -37,6 +40,7 @@
 }
 
 .meeple-manager-game-card__image-wrap {
+    position: relative;
     display: grid;
     aspect-ratio: 1 / 1;
     overflow: hidden;
@@ -51,6 +55,10 @@
     object-fit: cover;
 }
 
+.meeple-manager-game-card__image--placeholder {
+    opacity: var(--meeple-manager-game-placeholder-opacity, 40%);
+}
+
 .meeple-manager-game-card__placeholder {
     display: grid;
     width: 100%;
@@ -60,6 +68,60 @@
     box-sizing: border-box;
     color: var(--meeple-manager-game-title-color, #1a281d);
     text-align: center;
+}
+
+.meeple-manager-favorite-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 2;
+    display: grid;
+    width: 36px;
+    height: 36px;
+    place-items: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .94);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .2);
+    cursor: help;
+}
+
+.meeple-manager-favorite-badge__icon {
+    display: block;
+    width: 23px;
+    height: 23px;
+}
+
+.meeple-manager-favorite-badge__flame-outer {
+    fill: var(--meeple-manager-favorite-flame-outer, #f05a28);
+}
+
+.meeple-manager-favorite-badge__flame-inner {
+    fill: var(--meeple-manager-favorite-flame-inner, #ffc247);
+}
+
+.meeple-manager-favorite-badge__tooltip {
+    position: absolute;
+    top: 50%;
+    right: calc(100% + 8px);
+    z-index: 3;
+    padding: 4px 8px;
+    border-radius: 5px;
+    background: #1a281d;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.2;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-50%);
+    transition: opacity .15s ease, visibility .15s ease;
+}
+
+.meeple-manager-favorite-badge:hover .meeple-manager-favorite-badge__tooltip,
+.meeple-manager-favorite-badge:focus .meeple-manager-favorite-badge__tooltip {
+    opacity: 1;
+    visibility: visible;
 }
 
 .meeple-manager-catalog-wrap .meeple-manager-catalog__title,

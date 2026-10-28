@@ -261,7 +261,7 @@ class Meeple_Manager_Admin {
             </section>
             <section class="meeple-manager-admin-card">
                 <h2>Inventar importieren</h2>
-                <p>Erwartete Spalten: <code>Inventarnummer</code>, <code>Titel</code>, <code>Kategorie</code> und <code>Zustand</code>. Inventarnummer und Titel sind Pflicht; fehlende Kategorie wird als Grün importiert.</p>
+                <p>Erwartete Spalten: <code>Inventarnummer</code>, <code>Titel</code>, <code>Kategorie</code>, <code>Zustand</code> und optional <code>Favorit</code>. Inventarnummer und Titel sind Pflicht; fehlende Kategorie wird als Grün importiert.</p>
                 <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" enctype="multipart/form-data">
                     <input type="hidden" name="action" value="meeple_manager_import_csv">
                     <?php wp_nonce_field('meeple_manager_import_csv', 'meeple_manager_import_nonce'); ?>
@@ -402,6 +402,7 @@ class Meeple_Manager_Admin {
         $title_column = $this->find_column($columns, array('titel', 'title', 'name', 'spiel'));
         $category_column = $this->find_column($columns, array('kategorie', 'category'));
         $condition_column = $this->find_column($columns, array('zustand', 'condition'));
+        $favorite_column = $this->find_column($columns, array('favorit', 'aktueller_favorit', 'favorite', 'current_favorite'));
 
         if ($number_column === null || $title_column === null) {
             fclose($handle);
@@ -457,6 +458,10 @@ class Meeple_Manager_Admin {
                 update_post_meta($game_id, MEEPLE_MANAGER_META_CONDITION, $condition);
             }
 
+            if ($favorite_column !== null && isset($row[$favorite_column]) && $this->is_favorite_csv_value($row[$favorite_column])) {
+                update_post_meta($game_id, MEEPLE_MANAGER_META_FAVORITE, '1');
+            }
+
             $created++;
         }
 
@@ -489,7 +494,7 @@ class Meeple_Manager_Admin {
         header('Content-Disposition: attachment; filename="meeplemanager-spiele-' . wp_date('Y-m-d') . '.csv"');
         echo "\xEF\xBB\xBF";
         $output = fopen('php://output', 'wb');
-        fputcsv($output, array('Inventarnummer', 'Titel', 'Kategorie', 'Zustand'), ',', '"', '\\');
+        fputcsv($output, array('Inventarnummer', 'Titel', 'Kategorie', 'Zustand', 'Favorit'), ',', '"', '\\');
         $categories = Meeple_Manager_Content_Types::get_categories();
 
         foreach ($games as $game) {
@@ -502,6 +507,7 @@ class Meeple_Manager_Admin {
                     $game->post_title,
                     $category_label,
                     get_post_meta($game->ID, MEEPLE_MANAGER_META_CONDITION, true),
+                    get_post_meta($game->ID, MEEPLE_MANAGER_META_FAVORITE, true) === '1' ? 'Ja' : 'Nein',
                 ),
                 ',',
                 '"',
@@ -666,6 +672,11 @@ class Meeple_Manager_Admin {
         );
 
         return isset($map[$value]) ? $map[$value] : 'green';
+    }
+
+    private function is_favorite_csv_value($value) {
+        $value = strtolower(remove_accents(trim((string) $value)));
+        return in_array($value, array('1', 'true', 'yes', 'ja', 'j', 'x', 'favorite', 'favorit'), true);
     }
 
     private function inventory_number_exists($inventory_number) {

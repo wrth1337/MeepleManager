@@ -22,6 +22,7 @@ class Meeple_Manager_Game_Meta_Box {
         $inventory_number = get_post_meta($post->ID, MEEPLE_MANAGER_META_INVENTORY_NUMBER, true);
         $category = get_post_meta($post->ID, MEEPLE_MANAGER_META_GAME_CATEGORY, true);
         $condition = get_post_meta($post->ID, MEEPLE_MANAGER_META_CONDITION, true);
+        $is_favorite = get_post_meta($post->ID, MEEPLE_MANAGER_META_FAVORITE, true) === '1';
 
         if (!isset(Meeple_Manager_Content_Types::get_categories()[$category])) {
             $category = 'green';
@@ -45,6 +46,16 @@ class Meeple_Manager_Game_Meta_Box {
                             <?php endforeach; ?>
                         </select>
                         <p class="description">Die Kategorie legt fest, ob das Exemplar ausgeliehen werden kann.</p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">Favorit</th>
+                    <td>
+                        <label for="meeple-manager-favorite">
+                            <input id="meeple-manager-favorite" name="meeple_manager_favorite" type="checkbox" value="1" <?php checked($is_favorite); ?>>
+                            Aktueller Favorit
+                        </label>
+                        <p class="description">Favoriten erscheinen in <code>[game-list]</code> zuerst und erhalten eine Flamme.</p>
                     </td>
                 </tr>
                 <tr>
@@ -115,6 +126,12 @@ class Meeple_Manager_Game_Meta_Box {
             delete_post_meta($post_id, MEEPLE_MANAGER_META_CONDITION);
         } else {
             update_post_meta($post_id, MEEPLE_MANAGER_META_CONDITION, $condition);
+        }
+
+        if (isset($_POST['meeple_manager_favorite']) && sanitize_key(wp_unslash($_POST['meeple_manager_favorite'])) === '1') {
+            update_post_meta($post_id, MEEPLE_MANAGER_META_FAVORITE, '1');
+        } else {
+            delete_post_meta($post_id, MEEPLE_MANAGER_META_FAVORITE);
         }
     }
 
