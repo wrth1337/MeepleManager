@@ -5,9 +5,9 @@ MeepleManager is a WordPress plugin for club events and a board-game lending inv
 ## Features
 
 - Existing event management, categories, card styling, and frontend labels
-- Game inventory with unique inventory numbers, fixed lending categories, condition notes, and square featured images
+- Game inventory with unique inventory numbers, fixed lending categories, condition notes, square featured images, and favorites
 - Public game catalog showing each copy as a responsive image card
-- Configurable colors and corners for catalog cards and the protected lending area
+- Configurable placeholder image and opacity, favorite flame colors, and colors for catalog cards and the protected lending area
 - Password-protected lending list with availability and planned return dates
 - Member requests that staff approve or reject in the WordPress admin
 - Automatic request, approval, and rejection emails through WordPress mail
@@ -59,6 +59,8 @@ Open **MeepleManager** in the WordPress admin to manage games and events. Users 
 - See borrower details and the loan history
 - Configure the games warden email and email templates
 - Adjust the catalog and lending-area colors under **Spiele-Design**
+- Choose the fallback image and its opacity, and set both favorite-flame colors under **Spiele-Design**
+- Mark games as **Aktueller Favorit** in the game editor; favorites appear first in `[game-list]` with a flame and the hover label **Heiß**
 - Import and export the inventory as CSV
 
 To add a game image, set its **Beitragsbild** in the game editor. MeepleManager generates a square 600 × 600 crop for the catalog cards. You can adjust the crop in the WordPress media editor.
@@ -70,10 +72,10 @@ An active loan makes a game appear as unavailable. Pending requests do not reser
 CSV export uses these headers:
 
 ```text
-Inventarnummer,Titel,Kategorie,Zustand
+Inventarnummer,Titel,Kategorie,Zustand,Favorit
 ```
 
-The importer also accepts English column names (`inventory_number`, `title`, `category`, `condition`). Existing inventory numbers are skipped. Missing categories default to green. Loan history and personal data are not part of the inventory CSV.
+The importer also accepts English column names (`inventory_number`, `title`, `category`, `condition`, `favorite`). Favorite values such as `Ja`, `Yes`, or `1` are treated as enabled. Existing inventory numbers are skipped. Missing categories default to green. Loan history and personal data are not part of the inventory CSV.
 
 ## Email and scheduled anonymization
 
