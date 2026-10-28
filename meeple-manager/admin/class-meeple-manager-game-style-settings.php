@@ -61,7 +61,10 @@ class Meeple_Manager_Game_Style_Settings {
             MEEPLE_MANAGER_VERSION
         );
 
-        wp_add_inline_style('meeple-manager-frontend', $this->build_css_declaration_block());
+        wp_add_inline_style(
+            'meeple-manager-frontend',
+            ':root{' . $this->build_css_declaration_block() . '}'
+        );
     }
 
     public function render_page() {
