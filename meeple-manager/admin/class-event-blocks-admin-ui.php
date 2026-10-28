@@ -132,7 +132,7 @@ class Event_Blocks_Admin_UI {
 
     public function register_admin_menu() {
         $this->style_page_hook = add_submenu_page(
-            'edit.php?post_type=' . EVENT_BLOCKS_POST_TYPE,
+            MEEPLE_MANAGER_MENU_SLUG,
             'Kachel-Design',
             'Kachel-Design',
             'manage_options',

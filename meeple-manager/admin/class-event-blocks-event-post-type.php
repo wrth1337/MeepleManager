@@ -9,7 +9,7 @@ class Event_Blocks_Event_Post_Type {
         $labels = array(
             'name' => 'Events',
             'singular_name' => 'Event',
-            'menu_name' => 'Event Blocks',
+            'menu_name' => 'Veranstaltungen',
             'name_admin_bar' => 'Event',
             'add_new' => 'Event erstellen',
             'add_new_item' => 'Neues Event erstellen',
@@ -30,7 +30,7 @@ class Event_Blocks_Event_Post_Type {
                 'publicly_queryable' => false,
                 'exclude_from_search' => true,
                 'show_ui' => true,
-                'show_in_menu' => true,
+                'show_in_menu' => MEEPLE_MANAGER_MENU_SLUG,
                 'show_in_nav_menus' => false,
                 'has_archive' => false,
                 'rewrite' => false,

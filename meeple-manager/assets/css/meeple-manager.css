@@ -1,0 +1,176 @@
+.meeple-manager-catalog {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+    gap: 10px 24px;
+    margin: 1.5rem 0;
+    padding: 0;
+    list-style: none;
+}
+
+.meeple-manager-catalog__item {
+    padding: 12px 16px;
+    border: 1px solid #d8dfd4;
+    border-radius: 10px;
+    background: #fff;
+}
+
+.meeple-manager-button-wrap {
+    margin: 1.5rem 0;
+}
+
+.meeple-manager-button {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    padding: 11px 18px;
+    border: 0;
+    border-radius: 8px;
+    background: #233927;
+    color: #fff;
+    font: inherit;
+    font-weight: 700;
+    line-height: 1.2;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.meeple-manager-button:hover,
+.meeple-manager-button:focus {
+    background: #36523d;
+    color: #fff;
+}
+
+.meeple-manager-lending {
+    margin: 1.5rem 0;
+}
+
+.meeple-manager-table-wrap {
+    overflow-x: auto;
+}
+
+.meeple-manager-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+}
+
+.meeple-manager-table th,
+.meeple-manager-table td {
+    padding: 12px 14px;
+    border: 1px solid #d8dfd4;
+    text-align: left;
+    vertical-align: top;
+}
+
+.meeple-manager-table th {
+    background: #f1f5ee;
+}
+
+.meeple-manager-category {
+    display: inline-block;
+    padding: 4px 9px;
+    border-radius: 999px;
+    color: #fff;
+    font-size: .85em;
+    font-weight: 700;
+}
+
+.meeple-manager-category--green {
+    background: #25803b;
+}
+
+.meeple-manager-category--yellow {
+    background: #9a7000;
+}
+
+.meeple-manager-category--red {
+    background: #bb3030;
+}
+
+.meeple-manager-request {
+    max-width: 680px;
+    margin: 2rem 0;
+    padding: 22px;
+    border: 1px solid #d8dfd4;
+    border-radius: 12px;
+    background: #f9fbf8;
+}
+
+.meeple-manager-request label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.meeple-manager-request input,
+.meeple-manager-request select,
+.meeple-manager-request textarea {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    padding: 9px 10px;
+}
+
+.meeple-manager-request textarea {
+    min-height: 90px;
+}
+
+.meeple-manager-request .meeple-manager-button {
+    width: auto;
+}
+
+.meeple-manager-notice,
+.meeple-manager-empty {
+    margin: 1rem 0;
+    padding: 13px 16px;
+    border-left: 4px solid #64748b;
+    background: #f1f5f9;
+}
+
+.meeple-manager-notice--success {
+    border-left-color: #25803b;
+    background: #eff8f0;
+}
+
+.meeple-manager-notice--warning {
+    border-left-color: #9a7000;
+    background: #fff8e5;
+}
+
+.meeple-manager-notice--error {
+    border-left-color: #bb3030;
+    background: #fff1f1;
+}
+
+@media (max-width: 760px) {
+    .meeple-manager-table,
+    .meeple-manager-table tbody,
+    .meeple-manager-table tr,
+    .meeple-manager-table td {
+        display: block;
+        width: auto;
+    }
+
+    .meeple-manager-table thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+    }
+
+    .meeple-manager-table tr {
+        margin-bottom: 14px;
+        border: 1px solid #d8dfd4;
+    }
+
+    .meeple-manager-table td {
+        border: 0;
+        border-bottom: 1px solid #e7ebe4;
+    }
+
+    .meeple-manager-table td:last-child {
+        border-bottom: 0;
+    }
+}
