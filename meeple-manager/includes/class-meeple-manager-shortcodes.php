@@ -8,6 +8,7 @@ class Meeple_Manager_Shortcodes {
     public function register() {
         add_shortcode('game-list', array($this, 'render_public_catalog'));
         add_shortcode('meeple_game_list', array($this, 'render_public_catalog'));
+        add_shortcode('game-lending', array($this, 'render_lending_area'));
         add_shortcode('meeple-lending', array($this, 'render_lending_area'));
         add_shortcode('meeple_lending', array($this, 'render_lending_area'));
         add_shortcode('meeple-lending-button', array($this, 'render_lending_button'));
@@ -37,13 +38,29 @@ class Meeple_Manager_Shortcodes {
             return '<p class="meeple-manager-empty">Derzeit sind keine Spiele eingetragen.</p>';
         }
 
-        $output = '<ul class="meeple-manager-catalog">';
+        $output = '<div class="meeple-manager-catalog-wrap"><ul class="meeple-manager-catalog">';
 
         foreach ($games as $game) {
-            $output .= '<li class="meeple-manager-catalog__item">' . esc_html($game->post_title) . '</li>';
+            $image = get_the_post_thumbnail(
+                $game->ID,
+                'meeple-manager-game-card',
+                array(
+                    'class' => 'meeple-manager-game-card__image',
+                    'alt' => $game->post_title,
+                )
+            );
+
+            if ($image === '') {
+                $image = '<div class="meeple-manager-game-card__placeholder">Kein Bild hinterlegt</div>';
+            }
+
+            $output .= '<li class="meeple-manager-catalog__item">';
+            $output .= '<div class="meeple-manager-game-card__image-wrap">' . $image . '</div>';
+            $output .= '<h2 class="meeple-manager-catalog__title">' . esc_html($game->post_title) . '</h2>';
+            $output .= '</li>';
         }
 
-        $output .= '</ul>';
+        $output .= '</ul></div>';
 
         return $output;
     }

@@ -17,6 +17,7 @@ class Event_Blocks_Plugin {
     private $rentals;
     private $meeple_shortcodes;
     private $meeple_admin;
+    private $game_style_settings;
 
     public function __construct() {
         $repository = new Event_Blocks_Event_Repository();
@@ -34,11 +35,13 @@ class Event_Blocks_Plugin {
         $this->rentals = new Meeple_Manager_Rentals();
         $this->meeple_shortcodes = new Meeple_Manager_Shortcodes();
         $this->meeple_admin = new Meeple_Manager_Admin();
+        $this->game_style_settings = new Meeple_Manager_Game_Style_Settings();
     }
 
     public function run() {
         add_action('init', array($this->post_type, 'register'));
         add_action('init', array($this->content_types, 'register'));
+        add_action('after_setup_theme', array($this->content_types, 'register_image_sizes'));
         add_action('init', array($this->category_taxonomy, 'register'));
         add_action('wp_enqueue_scripts', array($this->assets, 'register'));
         add_action('add_meta_boxes', array($this->meta_boxes, 'register'));
@@ -61,6 +64,7 @@ class Event_Blocks_Plugin {
         add_filter('manage_' . EVENT_BLOCKS_CATEGORY_TAXONOMY . '_custom_column', array($this->admin_ui, 'render_category_column'), 10, 3);
         $this->rentals->register();
         $this->meeple_admin->register();
+        $this->game_style_settings->register();
         $this->shortcode->register();
         $this->meeple_shortcodes->register();
     }

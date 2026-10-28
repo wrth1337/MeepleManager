@@ -90,3 +90,89 @@
 #meeple-manager-lending-url {
     max-width: 520px;
 }
+
+.meeple-manager-game-style-editor__layout {
+    display: grid;
+    grid-template-columns: minmax(300px, 390px) minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+    max-width: 1200px;
+    margin-top: 20px;
+}
+
+.meeple-manager-game-style-editor__form {
+    margin: 0;
+}
+
+.meeple-manager-game-style-editor__control {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #eceff1;
+}
+
+.meeple-manager-game-style-editor__control label {
+    font-weight: 600;
+}
+
+.meeple-manager-game-style-editor__range {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.meeple-manager-game-style-editor__range output {
+    min-width: 46px;
+    text-align: right;
+}
+
+.meeple-manager-game-style-editor__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-top: 18px;
+}
+
+.meeple-manager-game-style-editor__actions p {
+    margin: 0;
+}
+
+.meeple-manager-game-style-editor__preview-panel {
+    position: sticky;
+    top: 32px;
+    overflow: hidden;
+}
+
+.meeple-manager-game-style-editor__preview {
+    padding: 18px;
+    background: #f6f7f7;
+}
+
+.meeple-manager-game-style-editor__preview .meeple-manager-catalog {
+    margin: 0;
+}
+
+@media (max-width: 1080px) {
+    .meeple-manager-game-style-editor__layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .meeple-manager-game-style-editor__preview-panel {
+        position: static;
+    }
+}
+
+@media (max-width: 782px) {
+    .meeple-manager-game-style-editor__actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .meeple-manager-game-style-editor__actions .button {
+        width: 100%;
+        justify-content: center;
+    }
+}

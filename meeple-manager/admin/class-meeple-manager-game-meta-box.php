@@ -54,6 +54,10 @@ class Meeple_Manager_Game_Meta_Box {
                         <p class="description">Freitext. Diese Angabe erscheint nur im passwortgeschützten Verleihbereich.</p>
                     </td>
                 </tr>
+                <tr>
+                    <th scope="row">Spielbild</th>
+                    <td><p class="description">Lege das Bild im Feld „Beitragsbild“ rechts fest. Für die Kacheln wird automatisch ein quadratischer Bildausschnitt erzeugt.</p></td>
+                </tr>
             </tbody>
         </table>
         <?php

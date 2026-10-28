@@ -2,7 +2,7 @@
 /**
  * Plugin Name: MeepleManager
  * Description: Vereinsverwaltung für Events und Spieleverleih mit öffentlichem Spielekatalog und geschütztem Verleihbereich.
- * Version: 4.0.0
+ * Version: 4.1.0
  * Author: wrth1337
  * Text Domain: meeple-manager
  */
@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('MEEPLE_MANAGER_VERSION', '4.0.0');
+define('MEEPLE_MANAGER_VERSION', '4.1.0');
 define('MEEPLE_MANAGER_FILE', __FILE__);
 define('MEEPLE_MANAGER_DIR', plugin_dir_path(__FILE__));
 define('MEEPLE_MANAGER_URL', plugin_dir_url(__FILE__));
@@ -32,6 +32,7 @@ define('MEEPLE_MANAGER_META_CHECKOUT_DATE', '_meeple_checkout_date');
 define('MEEPLE_MANAGER_META_DUE_DATE', '_meeple_due_date');
 define('MEEPLE_MANAGER_META_RETURN_DATE', '_meeple_return_date');
 define('MEEPLE_MANAGER_OPTION_SETTINGS', 'meeple_manager_settings');
+define('MEEPLE_MANAGER_OPTION_GAME_STYLES', 'meeple_manager_game_styles');
 define('MEEPLE_MANAGER_ANONYMIZE_HOOK', 'meeple_manager_anonymize_returned_loans');
 
 // Keep the event subsystem's identifiers stable so existing event data and styles continue to work.
@@ -70,6 +71,7 @@ require_once MEEPLE_MANAGER_DIR . 'admin/class-meeple-manager-game-meta-box.php'
 require_once MEEPLE_MANAGER_DIR . 'includes/class-meeple-manager-rentals.php';
 require_once MEEPLE_MANAGER_DIR . 'includes/class-meeple-manager-shortcodes.php';
 require_once MEEPLE_MANAGER_DIR . 'admin/class-meeple-manager-admin.php';
+require_once MEEPLE_MANAGER_DIR . 'admin/class-meeple-manager-game-style-settings.php';
 require_once MEEPLE_MANAGER_DIR . 'includes/class-event-blocks-plugin.php';
 
 register_activation_hook(MEEPLE_MANAGER_FILE, array('Event_Blocks_Activator', 'activate'));

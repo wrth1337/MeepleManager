@@ -32,7 +32,7 @@ class Meeple_Manager_Content_Types {
                 'has_archive' => false,
                 'rewrite' => false,
                 'menu_icon' => 'dashicons-games',
-                'supports' => array('title'),
+                'supports' => array('title', 'thumbnail'),
                 'show_in_rest' => false,
             )
         );
@@ -55,6 +55,10 @@ class Meeple_Manager_Content_Types {
                 'map_meta_cap' => true,
             )
         );
+    }
+
+    public function register_image_sizes() {
+        add_image_size('meeple-manager-game-card', 600, 600, true);
     }
 
     public static function get_categories() {
