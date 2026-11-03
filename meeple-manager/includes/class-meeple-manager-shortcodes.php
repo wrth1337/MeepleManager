@@ -145,7 +145,8 @@ class Meeple_Manager_Shortcodes {
                 'post_type' => MEEPLE_MANAGER_GAME_POST_TYPE,
                 'post_status' => 'publish',
                 'posts_per_page' => -1,
-                'orderby' => 'title',
+                'meta_key' => MEEPLE_MANAGER_META_INVENTORY_NUMBER,
+                'orderby' => 'meta_value',
                 'order' => 'ASC',
                 'meta_query' => array(
                     array(
@@ -180,13 +181,13 @@ class Meeple_Manager_Shortcodes {
         $output .= '<label>Spiel nach Titel suchen<input type="search" data-game-title-search placeholder="Titel eingeben" autocomplete="off"></label>';
         $output .= '<div class="meeple-manager-mobile-sort-controls" role="group" aria-label="Spiele sortieren">';
         $output .= '<span>Sortieren:</span>';
-        $output .= '<button type="button" class="meeple-manager-sort-button" data-sort-button="inventory" aria-label="Nach Inventarnummer aufsteigend sortieren">Inventarnummer <span class="meeple-manager-sort-indicator" aria-hidden="true">↕</span></button>';
-        $output .= '<button type="button" class="meeple-manager-sort-button" data-sort-button="title" aria-label="Nach Titel aufsteigend sortieren">Titel <span class="meeple-manager-sort-indicator" aria-hidden="true">↑</span></button>';
+        $output .= '<button type="button" class="meeple-manager-sort-button" data-sort-button="inventory" aria-label="Nach Inventarnummer absteigend sortieren"><span>Inventarnummer</span> <span class="meeple-manager-sort-indicator" aria-hidden="true">↑</span></button>';
+        $output .= '<button type="button" class="meeple-manager-sort-button" data-sort-button="title" aria-label="Nach Titel aufsteigend sortieren"><span>Titel</span> <span class="meeple-manager-sort-indicator" aria-hidden="true">↕</span></button>';
         $output .= '</div></div>';
-        $output .= '<table class="meeple-manager-table" data-meeple-manager-game-table data-sort-column="title" data-sort-direction="asc">';
+        $output .= '<table class="meeple-manager-table" data-meeple-manager-game-table data-sort-column="inventory" data-sort-direction="asc">';
         $output .= '<thead><tr>';
-        $output .= '<th scope="col" data-sort-header="inventory" aria-sort="none">Inventarnummer <button type="button" class="meeple-manager-sort-button" data-sort-button="inventory" aria-label="Nach Inventarnummer aufsteigend sortieren"><span class="meeple-manager-sort-indicator" aria-hidden="true">↕</span></button></th>';
-        $output .= '<th scope="col" data-sort-header="title" aria-sort="ascending">Titel <button type="button" class="meeple-manager-sort-button" data-sort-button="title" aria-label="Nach Titel aufsteigend sortieren"><span class="meeple-manager-sort-indicator" aria-hidden="true">↑</span></button></th>';
+        $output .= '<th scope="col" data-sort-header="inventory" aria-sort="ascending"><button type="button" class="meeple-manager-sort-button meeple-manager-sort-button--header" data-sort-button="inventory" aria-label="Nach Inventarnummer absteigend sortieren"><span class="meeple-manager-sort-label">Inventarnummer</span><span class="meeple-manager-sort-indicator" aria-hidden="true">↑</span></button></th>';
+        $output .= '<th scope="col" data-sort-header="title" aria-sort="none"><button type="button" class="meeple-manager-sort-button meeple-manager-sort-button--header" data-sort-button="title" aria-label="Nach Titel aufsteigend sortieren"><span class="meeple-manager-sort-label">Titel</span><span class="meeple-manager-sort-indicator" aria-hidden="true">↕</span></button></th>';
         $output .= '<th scope="col">Kategorie</th><th scope="col">Zustand</th><th scope="col">Verfügbarkeit</th><th scope="col">Voraussichtliche Rückgabe</th></tr></thead><tbody>';
         $requestable_games = array();
         $categories = Meeple_Manager_Content_Types::get_categories();

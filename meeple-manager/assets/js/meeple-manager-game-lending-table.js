@@ -93,6 +93,6 @@ document.addEventListener('DOMContentLoaded', function () {
             search.addEventListener('input', filterRows);
         }
 
-        sortRows('title', 'asc');
+        sortRows('inventory', 'asc');
     });
 });
