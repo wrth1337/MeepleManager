@@ -37,6 +37,14 @@ class Meeple_Manager_Shortcodes {
             return '<p class="meeple-manager-empty">Derzeit sind keine Spiele eingetragen.</p>';
         }
 
+        wp_enqueue_script(
+            'meeple-manager-game-list',
+            MEEPLE_MANAGER_URL . 'assets/js/meeple-manager-game-list.js',
+            array(),
+            MEEPLE_MANAGER_VERSION,
+            true
+        );
+
         $favorite_games = array();
         $regular_games = array();
 
@@ -62,7 +70,9 @@ class Meeple_Manager_Shortcodes {
                 )
             )
             : '';
-        $output = '<div class="meeple-manager-catalog-wrap"><ul class="meeple-manager-catalog">';
+        $output = '<div class="meeple-manager-catalog-wrap">';
+        $output .= '<div class="meeple-manager-catalog-controls"><label>Spiel nach Titel suchen<input type="search" data-game-list-search placeholder="Titel eingeben" autocomplete="off"></label></div>';
+        $output .= '<ul class="meeple-manager-catalog" data-game-list>';
 
         foreach ($games as $game) {
             $image_position = array();
@@ -96,7 +106,7 @@ class Meeple_Manager_Shortcodes {
                     : '<div class="meeple-manager-game-card__placeholder">Kein Bild hinterlegt</div>';
             }
 
-            $output .= '<li class="meeple-manager-catalog__item">';
+            $output .= '<li class="meeple-manager-catalog__item" data-game-title="' . esc_attr($game->post_title) . '">';
             $output .= '<div class="meeple-manager-game-card__image-wrap' . ($is_placeholder ? ' meeple-manager-game-card__image-wrap--placeholder' : '') . '">' . $image;
             if (get_post_meta($game->ID, MEEPLE_MANAGER_META_FAVORITE, true) === '1') {
                 $output .= self::render_favorite_badge();
@@ -106,7 +116,7 @@ class Meeple_Manager_Shortcodes {
             $output .= '</li>';
         }
 
-        $output .= '</ul></div>';
+        $output .= '</ul><p class="meeple-manager-catalog-no-results" data-game-list-no-results role="status" hidden>Kein Spiel mit diesem Titel gefunden.</p></div>';
 
         return $output;
     }

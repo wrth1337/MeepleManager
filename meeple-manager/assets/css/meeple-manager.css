@@ -38,6 +38,34 @@
     list-style: none;
 }
 
+.meeple-manager-catalog-controls {
+    display: flex;
+    justify-content: flex-end;
+    margin: 1rem 0;
+}
+
+.meeple-manager-catalog-controls > label {
+    display: grid;
+    width: min(100%, 320px);
+    gap: 6px;
+    color: var(--meeple-manager-game-table-text-color, #1a281d);
+    font-weight: 600;
+}
+
+.meeple-manager-catalog-controls input[type="search"] {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 9px 10px;
+    border: 1px solid var(--meeple-manager-game-card-border, #d8dfd4);
+    border-radius: 4px;
+    font: inherit;
+}
+
+.meeple-manager-catalog-wrap .meeple-manager-catalog__item[hidden],
+.meeple-manager-catalog-no-results[hidden] {
+    display: none !important;
+}
+
 .meeple-manager-catalog-wrap .meeple-manager-catalog__item,
 .meeple-manager-game-style-editor__preview .meeple-manager-catalog__item {
     min-width: 0;
@@ -381,6 +409,15 @@
 }
 
 @media (max-width: 760px) {
+    .meeple-manager-catalog-controls {
+        display: grid;
+        margin: 1rem 0;
+    }
+
+    .meeple-manager-catalog-controls > label {
+        width: 100%;
+    }
+
     .meeple-manager-table-controls {
         display: grid;
         gap: 10px;
