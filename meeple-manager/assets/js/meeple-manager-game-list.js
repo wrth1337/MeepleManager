@@ -4,6 +4,9 @@ document.addEventListener('DOMContentLoaded', function () {
         var search = container ? container.querySelector('[data-game-list-search]') : null;
         var noResults = container ? container.querySelector('[data-game-list-no-results]') : null;
         var cards = Array.prototype.slice.call(list.querySelectorAll('[data-game-title]'));
+        var tableRows = container ? Array.prototype.slice.call(container.querySelectorAll('[data-game-list-row]')) : [];
+        var tableView = container ? container.querySelector('[data-game-list-table]') : null;
+        var viewButtons = container ? container.querySelectorAll('[data-game-list-view]') : [];
         var categoryButtons = container ? container.querySelectorAll('[data-game-category-filter]') : [];
         var enabledCategories = Object.create(null);
 
@@ -26,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function () {
             var query = search.value.trim().toLocaleLowerCase('de-DE');
             var visibleGames = 0;
 
-            cards.forEach(function (card) {
+            cards.forEach(function (card, index) {
                 var title = (card.getAttribute('data-game-title') || '').toLocaleLowerCase('de-DE');
                 var categories = (card.getAttribute('data-game-categories') || '').split(/\s+/).filter(Boolean);
                 var matchesTitle = query === '' || title.indexOf(query) !== -1;
@@ -36,6 +39,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 var matches = matchesTitle && matchesCategory;
 
                 card.hidden = !matches;
+                if (tableRows[index]) {
+                    tableRows[index].hidden = !matches;
+                }
                 if (matches) {
                     visibleGames += 1;
                 }
@@ -50,6 +56,26 @@ document.addEventListener('DOMContentLoaded', function () {
             card.classList.toggle('is-flipped', flipped);
             card.setAttribute('aria-expanded', flipped ? 'true' : 'false');
         }
+
+        function setView(view) {
+            var showTable = view === 'table';
+            list.hidden = showTable;
+            if (tableView) {
+                tableView.hidden = !showTable;
+            }
+
+            Array.prototype.forEach.call(viewButtons, function (button) {
+                var active = button.getAttribute('data-game-list-view') === view;
+                button.classList.toggle('is-active', active);
+                button.setAttribute('aria-pressed', active ? 'true' : 'false');
+            });
+        }
+
+        Array.prototype.forEach.call(viewButtons, function (button) {
+            button.addEventListener('click', function () {
+                setView(button.getAttribute('data-game-list-view'));
+            });
+        });
 
         function isFlipped(card) {
             var supportsHover = window.matchMedia && window.matchMedia('(hover: hover)').matches;
