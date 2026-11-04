@@ -208,6 +208,7 @@ class Meeple_Manager_Shortcodes {
             if ($is_favorite) {
                 $output .= self::render_favorite_badge();
             }
+            $output .= '<span class="meeple-manager-game-card__tap-hint" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.6 9A7 7 0 0 1 17 5.4L20 8M4 16l3 2.6A7 7 0 0 0 18.4 15"/></svg></span>';
             $output .= '</div>';
             $output .= '<h2 class="meeple-manager-catalog__title">' . esc_html($game->post_title) . '</h2>';
             $output .= '</div>';
