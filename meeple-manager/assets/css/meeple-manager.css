@@ -437,6 +437,22 @@
     background: rgba(255, 255, 255, .94);
     box-shadow: 0 2px 8px rgba(0, 0, 0, .2);
     cursor: help;
+    transition: opacity .12s ease, visibility 0s linear;
+}
+
+.meeple-manager-game-card.is-flipped .meeple-manager-favorite-badge,
+.meeple-manager-game-card:focus-visible .meeple-manager-favorite-badge {
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity .12s ease, visibility 0s linear .12s;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .meeple-manager-catalog-wrap .meeple-manager-catalog__item:hover:not(.is-hovering-favorite) .meeple-manager-favorite-badge {
+        visibility: hidden;
+        opacity: 0;
+        transition: opacity .12s ease, visibility 0s linear .12s;
+    }
 }
 
 .meeple-manager-favorite-badge__icon {
