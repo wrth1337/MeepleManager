@@ -6,7 +6,8 @@ MeepleManager is a WordPress plugin for club events and a board-game lending inv
 
 - Existing event management, categories, card styling, and frontend labels
 - Game inventory with unique inventory numbers, fixed lending categories, condition notes, featured images with adjustable fitting and position, and favorites
-- Public game catalog showing each copy as a responsive image card, with a title search
+- Public game catalog with a title search and toggleable game-category filters
+- Game cards that flip to show player count, play time, and assigned game categories
 - Configurable placeholder image and opacity, image fit and position, card frame thickness, favorite flame colors, and colors for catalog cards and the protected lending area
 - Configurable thickness for lending-table lines
 - Configurable border thickness for the lending-request box
@@ -67,6 +68,8 @@ Open **MeepleManager** in the WordPress admin to manage games and events. Users 
 - Customize the request-confirmation background, text, and accent colors under **Spiele-Design**
 - Search lending games by title and sort by inventory number or title in the table header
 - Mark games as **Aktueller Favorit** in the game editor; favorites appear first in `[game-list]` with a flame and the hover label **Heiß**
+- Enter player-count and play-time ranges in the game editor and create game categories under **Spielkategorien**
+- Filter the public catalog by game category; hover, focus, or tap a card to view its details
 - Import and export the inventory as CSV
 
 To add a game image, set its **Beitragsbild** in the game editor. By default, the full image fits inside the square card. Under **Spiele-Design**, you can instead fill the card and set a global focal position; each game can override its horizontal or vertical position in the editor.
