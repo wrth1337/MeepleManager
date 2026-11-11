@@ -157,8 +157,27 @@ class Meeple_Manager_Shortcodes {
             return $output;
         }
 
-        $output .= '<div class="meeple-manager-table-wrap"><table class="meeple-manager-table">';
-        $output .= '<thead><tr><th scope="col">Inventarnummer</th><th scope="col">Titel</th><th scope="col">Kategorie</th><th scope="col">Zustand</th><th scope="col">Verfügbarkeit</th><th scope="col">Voraussichtliche Rückgabe</th></tr></thead><tbody>';
+        wp_enqueue_script(
+            'meeple-manager-game-lending-table',
+            MEEPLE_MANAGER_URL . 'assets/js/meeple-manager-game-lending-table.js',
+            array(),
+            MEEPLE_MANAGER_VERSION,
+            true
+        );
+
+        $output .= '<div class="meeple-manager-table-wrap">';
+        $output .= '<div class="meeple-manager-table-controls">';
+        $output .= '<label>Spiel nach Titel suchen<input type="search" data-game-title-search placeholder="Titel eingeben" autocomplete="off"></label>';
+        $output .= '<div class="meeple-manager-mobile-sort-controls" role="group" aria-label="Spiele sortieren">';
+        $output .= '<span>Sortieren:</span>';
+        $output .= '<button type="button" class="meeple-manager-sort-button" data-sort-button="inventory" aria-label="Nach Inventarnummer aufsteigend sortieren">Inventarnummer <span class="meeple-manager-sort-indicator" aria-hidden="true">↕</span></button>';
+        $output .= '<button type="button" class="meeple-manager-sort-button" data-sort-button="title" aria-label="Nach Titel aufsteigend sortieren">Titel <span class="meeple-manager-sort-indicator" aria-hidden="true">↑</span></button>';
+        $output .= '</div></div>';
+        $output .= '<table class="meeple-manager-table" data-meeple-manager-game-table data-sort-column="title" data-sort-direction="asc">';
+        $output .= '<thead><tr>';
+        $output .= '<th scope="col" data-sort-header="inventory" aria-sort="none">Inventarnummer <button type="button" class="meeple-manager-sort-button" data-sort-button="inventory" aria-label="Nach Inventarnummer aufsteigend sortieren"><span class="meeple-manager-sort-indicator" aria-hidden="true">↕</span></button></th>';
+        $output .= '<th scope="col" data-sort-header="title" aria-sort="ascending">Titel <button type="button" class="meeple-manager-sort-button" data-sort-button="title" aria-label="Nach Titel aufsteigend sortieren"><span class="meeple-manager-sort-indicator" aria-hidden="true">↑</span></button></th>';
+        $output .= '<th scope="col">Kategorie</th><th scope="col">Zustand</th><th scope="col">Verfügbarkeit</th><th scope="col">Voraussichtliche Rückgabe</th></tr></thead><tbody>';
         $requestable_games = array();
         $categories = Meeple_Manager_Content_Types::get_categories();
 
@@ -186,17 +205,17 @@ class Meeple_Manager_Shortcodes {
                 $requestable_games[] = $game;
             }
 
-            $output .= '<tr>';
-            $output .= '<td>' . esc_html($inventory_number) . '</td>';
-            $output .= '<td>' . esc_html($game->post_title) . '</td>';
-            $output .= '<td><span class="meeple-manager-category meeple-manager-category--' . esc_attr($category_key) . '">' . esc_html($category['short_label']) . '</span></td>';
-            $output .= '<td>' . ($condition !== '' ? nl2br(esc_html($condition)) : '–') . '</td>';
-            $output .= '<td>' . esc_html($availability) . '</td>';
-            $output .= '<td>' . ($due_date !== '' ? esc_html($this->format_date($due_date)) : '–') . '</td>';
+            $output .= '<tr data-game-title="' . esc_attr($game->post_title) . '" data-inventory-number="' . esc_attr($inventory_number) . '">';
+            $output .= '<td data-label="Inventarnummer">' . esc_html($inventory_number) . '</td>';
+            $output .= '<td data-label="Titel">' . esc_html($game->post_title) . '</td>';
+            $output .= '<td data-label="Kategorie"><span class="meeple-manager-category meeple-manager-category--' . esc_attr($category_key) . '">' . esc_html($category['short_label']) . '</span></td>';
+            $output .= '<td data-label="Zustand">' . ($condition !== '' ? nl2br(esc_html($condition)) : '–') . '</td>';
+            $output .= '<td data-label="Verfügbarkeit">' . esc_html($availability) . '</td>';
+            $output .= '<td data-label="Voraussichtliche Rückgabe">' . ($due_date !== '' ? esc_html($this->format_date($due_date)) : '–') . '</td>';
             $output .= '</tr>';
         }
 
-        $output .= '</tbody></table></div>';
+        $output .= '</tbody></table><p class="meeple-manager-table-no-results" data-game-title-no-results role="status" hidden>Kein Spiel mit diesem Titel gefunden.</p></div>';
         $output .= $this->render_request_form($requestable_games);
         $output .= '</div>';
 
