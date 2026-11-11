@@ -86,7 +86,7 @@ class Meeple_Manager_Game_Style_Settings {
         $placeholder_image = $settings['placeholder_image_id']
             ? wp_get_attachment_image(
                 $settings['placeholder_image_id'],
-                'large',
+                'full',
                 false,
                 array('class' => 'meeple-manager-game-card__image meeple-manager-game-card__image--placeholder', 'alt' => '')
             )
@@ -98,7 +98,7 @@ class Meeple_Manager_Game_Style_Settings {
         ?>
         <div class="wrap meeple-manager-admin meeple-manager-game-style-editor">
             <h1>Spiele-Design</h1>
-            <p>Lege Farben und Eckenradius für den öffentlichen Katalog und den passwortgeschützten Verleihbereich fest. Die Vorschau rechts zeigt beide Ansichten.</p>
+            <p>Lege Farben, Bildanpassung und Linienstärken für den Katalog und den passwortgeschützten Verleihbereich fest. Die Vorschau rechts zeigt beide Ansichten.</p>
             <?php settings_errors('meeple_manager_game_style_messages'); ?>
             <div class="meeple-manager-game-style-editor__layout">
                 <form class="meeple-manager-admin-card meeple-manager-game-style-editor__form" method="post" action="options.php" data-meeple-game-style-form>
@@ -225,6 +225,39 @@ class Meeple_Manager_Game_Style_Settings {
                 'unit' => '%',
                 'css_variable' => '--meeple-manager-game-placeholder-opacity',
             ),
+            'image_fit' => array(
+                'section' => 'Spielekatalog',
+                'label' => 'Bildanpassung',
+                'type' => 'select',
+                'default' => 'contain',
+                'options' => array(
+                    'contain' => 'Gesamtes Bild einpassen',
+                    'cover' => 'Kachel füllen (Bild kann beschnitten werden)',
+                ),
+                'css_variable' => '--meeple-manager-game-image-fit',
+            ),
+            'image_position_x' => array(
+                'section' => 'Spielekatalog',
+                'label' => 'Bildposition horizontal',
+                'type' => 'range',
+                'default' => 50,
+                'min' => 0,
+                'max' => 100,
+                'step' => 5,
+                'unit' => '%',
+                'css_variable' => '--meeple-manager-game-image-position-x',
+            ),
+            'image_position_y' => array(
+                'section' => 'Spielekatalog',
+                'label' => 'Bildposition vertikal',
+                'type' => 'range',
+                'default' => 50,
+                'min' => 0,
+                'max' => 100,
+                'step' => 5,
+                'unit' => '%',
+                'css_variable' => '--meeple-manager-game-image-position-y',
+            ),
             'table_background' => array(
                 'section' => 'Verleihbereich',
                 'label' => 'Tabellenhintergrund',
@@ -239,6 +272,17 @@ class Meeple_Manager_Game_Style_Settings {
                 'default' => '#f1f5ee',
                 'css_variable' => '--meeple-manager-game-table-header-bg',
             ),
+            'table_border_width' => array(
+                'section' => 'Verleihbereich',
+                'label' => 'Stärke der Tabellenlinien',
+                'type' => 'range',
+                'default' => 1,
+                'min' => 0,
+                'max' => 6,
+                'step' => 1,
+                'unit' => 'px',
+                'css_variable' => '--meeple-manager-game-table-border-width',
+            ),
             'table_text_color' => array(
                 'section' => 'Verleihbereich',
                 'label' => 'Tabellentext',
@@ -252,6 +296,17 @@ class Meeple_Manager_Game_Style_Settings {
                 'type' => 'color',
                 'default' => '#f9fbf8',
                 'css_variable' => '--meeple-manager-game-request-bg',
+            ),
+            'request_border_width' => array(
+                'section' => 'Verleihbereich',
+                'label' => 'Rahmenstärke des Anfragekastens',
+                'type' => 'range',
+                'default' => 1,
+                'min' => 0,
+                'max' => 10,
+                'step' => 1,
+                'unit' => 'px',
+                'css_variable' => '--meeple-manager-game-request-border-width',
             ),
             'request_heading_color' => array(
                 'section' => 'Verleihbereich',
@@ -351,6 +406,12 @@ class Meeple_Manager_Game_Style_Settings {
                 continue;
             }
 
+            if ($control['type'] === 'select') {
+                $value = sanitize_key((string) $input[$key]);
+                $settings[$key] = array_key_exists($value, $control['options']) ? $value : $control['default'];
+                continue;
+            }
+
             $value = absint($input[$key]);
             $settings[$key] = min((int) $control['max'], max((int) $control['min'], $value));
         }
@@ -401,6 +462,18 @@ class Meeple_Manager_Game_Style_Settings {
                         <?php endif; ?>
                     </div>
                 </div>
+            <?php elseif ($control['type'] === 'select') : ?>
+                <select
+                    id="<?php echo esc_attr($field_id); ?>"
+                    name="<?php echo esc_attr($field_name); ?>"
+                    data-meeple-game-style-setting
+                    data-css-variable="<?php echo esc_attr($control['css_variable']); ?>"
+                    data-default="<?php echo esc_attr($control['default']); ?>"
+                >
+                    <?php foreach ($control['options'] as $option_value => $option_label) : ?>
+                        <option value="<?php echo esc_attr($option_value); ?>" <?php selected($value, $option_value); ?>><?php echo esc_html($option_label); ?></option>
+                    <?php endforeach; ?>
+                </select>
             <?php elseif ($control['type'] === 'range') : ?>
                 <span class="meeple-manager-game-style-editor__range">
                     <input

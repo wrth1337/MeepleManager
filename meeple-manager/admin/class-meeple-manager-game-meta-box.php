@@ -23,6 +23,8 @@ class Meeple_Manager_Game_Meta_Box {
         $category = get_post_meta($post->ID, MEEPLE_MANAGER_META_GAME_CATEGORY, true);
         $condition = get_post_meta($post->ID, MEEPLE_MANAGER_META_CONDITION, true);
         $is_favorite = get_post_meta($post->ID, MEEPLE_MANAGER_META_FAVORITE, true) === '1';
+        $image_position_x = get_post_meta($post->ID, MEEPLE_MANAGER_META_IMAGE_POSITION_X, true);
+        $image_position_y = get_post_meta($post->ID, MEEPLE_MANAGER_META_IMAGE_POSITION_Y, true);
 
         if (!isset(Meeple_Manager_Content_Types::get_categories()[$category])) {
             $category = 'green';
@@ -66,8 +68,18 @@ class Meeple_Manager_Game_Meta_Box {
                     </td>
                 </tr>
                 <tr>
+                    <th scope="row">Bildposition in der Kachel</th>
+                    <td>
+                        <label for="meeple-manager-image-position-x">Horizontal</label>
+                        <input id="meeple-manager-image-position-x" name="meeple_manager_image_position_x" type="number" min="0" max="100" step="1" value="<?php echo esc_attr($image_position_x); ?>" class="small-text" placeholder="Design-Standard"> %
+                        <label for="meeple-manager-image-position-y">Vertikal</label>
+                        <input id="meeple-manager-image-position-y" name="meeple_manager_image_position_y" type="number" min="0" max="100" step="1" value="<?php echo esc_attr($image_position_y); ?>" class="small-text" placeholder="Design-Standard"> %
+                        <p class="description">Leer lassen, um die Position aus „Spiele-Design“ zu verwenden. 0&nbsp;% entspricht links/oben, 100&nbsp;% rechts/unten. Bei „Kachel füllen“ verschiebt die Position den sichtbaren Ausschnitt.</p>
+                    </td>
+                </tr>
+                <tr>
                     <th scope="row">Spielbild</th>
-                    <td><p class="description">Lege das Bild im Feld „Beitragsbild“ rechts fest. Für die Kacheln wird automatisch ein quadratischer Bildausschnitt erzeugt.</p></td>
+                    <td><p class="description">Lege das Bild im Feld „Beitragsbild“ rechts fest. Die Originaldatei wird verwendet; Bildanpassung und globale Position legst du unter „Spiele-Design“ fest.</p></td>
                 </tr>
             </tbody>
         </table>
@@ -133,6 +145,9 @@ class Meeple_Manager_Game_Meta_Box {
         } else {
             delete_post_meta($post_id, MEEPLE_MANAGER_META_FAVORITE);
         }
+
+        $this->save_image_position($post_id, MEEPLE_MANAGER_META_IMAGE_POSITION_X, 'meeple_manager_image_position_x');
+        $this->save_image_position($post_id, MEEPLE_MANAGER_META_IMAGE_POSITION_Y, 'meeple_manager_image_position_y');
     }
 
     public function admin_notice() {
@@ -173,5 +188,18 @@ class Meeple_Manager_Game_Meta_Box {
         );
 
         return !empty($matches);
+    }
+
+    private function save_image_position($post_id, $meta_key, $field_name) {
+        $value = isset($_POST[$field_name]) && is_scalar($_POST[$field_name])
+            ? trim((string) wp_unslash($_POST[$field_name]))
+            : '';
+
+        if ($value === '') {
+            delete_post_meta($post_id, $meta_key);
+            return;
+        }
+
+        update_post_meta($post_id, $meta_key, min(100, absint($value)));
     }
 }

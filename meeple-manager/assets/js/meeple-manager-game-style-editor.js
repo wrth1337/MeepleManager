@@ -106,9 +106,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             mediaFrame.on('select', function () {
                 var attachment = mediaFrame.state().get('selection').first().toJSON();
-                var sizes = attachment.sizes || {};
-                var previewSize = sizes.large || sizes.medium_large || sizes.medium;
-                setPlaceholderImage(attachment.id, previewSize ? previewSize.url : attachment.url);
+                setPlaceholderImage(attachment.id, attachment.url);
             });
 
             mediaFrame.open();
