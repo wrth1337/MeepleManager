@@ -59,8 +59,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 var title = (card.getAttribute('data-game-title') || '').toLocaleLowerCase('de-DE');
                 var categories = (card.getAttribute('data-game-categories') || '').split(/\s+/).filter(Boolean);
                 var matchesTitle = query === '' || title.indexOf(query) !== -1;
-                var matchesCategory = categories.every(function (category) {
-                    return enabledCategories[category] !== false;
+                var matchesCategory = categoryButtons.length === 0 || categories.length === 0 || categories.some(function (category) {
+                    return enabledCategories[category] === true;
                 });
                 var matches = matchesTitle && matchesCategory;
 

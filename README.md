@@ -80,7 +80,7 @@ Every number is checked against both the primary and additional numbers of other
 
 To add a game image, set its **Beitragsbild** in the game editor. By default, the full image fits inside the square card. Under **Spiele-Design**, you can instead fill the card and set a global focal position; each game can override its horizontal or vertical position in the editor.
 
-Both catalog views use uncropped source images, with fitting controlled by **Spiele-Design**. Disabling a category hides every game assigned to it, even if another category is still enabled. Disabling a parent category also hides games in its subcategories; games without categories remain visible. Player-count and play-time sorting uses the minimum value, or the maximum when only that value is known. Games with neither value remain at the end in both sort directions.
+Both catalog views use uncropped source images, with fitting controlled by **Spiele-Design**. Enabled categories are combined with OR: a game is visible when at least one of its assigned categories or their parent categories is enabled. For example, a game in both Strategy and Cooperative appears when either category is selected. Games without categories remain visible. Player-count and play-time sorting uses the minimum value, or the maximum when only that value is known. Games with neither value remain at the end in both sort directions.
 
 An active loan makes a game appear as unavailable. Pending requests do not reserve a game. The warden coordinates competing requests outside the plugin.
 
