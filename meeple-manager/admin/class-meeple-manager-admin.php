@@ -189,17 +189,19 @@ class Meeple_Manager_Admin {
                                 <div class="meeple-manager-request-decision__email-field">
                                     <label for="meeple-approval-<?php echo esc_attr($request->ID); ?>">Bestätigungs-E-Mail (vor dem Versand bearbeitbar)</label>
                                     <textarea id="meeple-approval-<?php echo esc_attr($request->ID); ?>" name="approval_message" rows="6" class="large-text"><?php echo esc_textarea($settings['approval_template']); ?></textarea>
-                                    <p class="description">Du kannst hier Details zur Übergabe ergänzen. Platzhalter: <code>{first_name}</code>, <code>{last_name}</code>, <code>{game_title}</code>, <code>{inventory_number}</code>, <code>{checkout_date}</code>, <code>{due_date}</code>.</p>
+                                    <p class="description">Beim Ausleihen wird diese Bestätigungs-E-Mail gesendet. Du kannst hier Details zur Übergabe ergänzen. Platzhalter: <code>{first_name}</code>, <code>{last_name}</code>, <code>{game_title}</code>, <code>{inventory_number}</code>, <code>{checkout_date}</code>, <code>{due_date}</code>.</p>
+                                    <button class="button button-primary" type="submit" name="decision" value="approve">Ausleihen</button>
                                 </div>
                                 <div class="meeple-manager-request-decision__email-field">
                                     <label for="meeple-rejection-<?php echo esc_attr($request->ID); ?>">Nachricht bei Ablehnung (vor dem Versand änderbar)</label>
                                     <textarea id="meeple-rejection-<?php echo esc_attr($request->ID); ?>" name="rejection_message" rows="4" class="large-text"><?php echo esc_textarea($settings['rejection_template']); ?></textarea>
+                                    <p class="description">Beim Ablehnen wird diese Nachricht an das Mitglied gesendet und die Anfrage danach gelöscht.</p>
+                                    <button class="button" type="submit" name="decision" value="reject">Ablehnen</button>
                                 </div>
-                                <p class="meeple-manager-admin-actions">
-                                    <button class="button button-primary" type="submit" name="decision" value="approve">Ausleihe bestätigen und E-Mail senden</button>
-                                    <button class="button" type="submit" name="decision" value="reject">Ablehnen, E-Mail senden und Anfrage löschen</button>
-                                    <button class="button" type="submit" name="decision" value="withdrawn" onclick="return confirm('Diese zurückgezogene Anfrage endgültig löschen?');">Zurückgezogene Anfrage löschen</button>
-                                </p>
+                                <div class="meeple-manager-request-decision__delete">
+                                    <button class="button meeple-manager-request-delete" type="submit" name="decision" value="delete" onclick="return confirm('Diese Anfrage endgültig und ohne E-Mail löschen?');">Anfrage löschen</button>
+                                    <p class="description">Entfernt die Anfrage endgültig, ohne E-Mail zu senden. Für Test- und Debugzwecke.</p>
+                                </div>
                             </form>
                         </section>
                     <?php endforeach; ?>
@@ -532,6 +534,7 @@ class Meeple_Manager_Admin {
             'loan_created' => array('success', 'Die Ausleihe wurde angelegt und die Bestätigungs-E-Mail wurde an das Mitglied übergeben.'),
             'loan_created_mail_warning' => array('warning', 'Die Ausleihe wurde angelegt, aber WordPress konnte die Bestätigungs-E-Mail nicht zum Versand übergeben.'),
             'request_rejected' => array('success', 'Die Ablehnungs-E-Mail wurde übergeben und die Anfrage gelöscht.'),
+            'request_deleted' => array('success', 'Die Anfrage wurde endgültig gelöscht. Es wurde keine E-Mail versendet.'),
             'request_withdrawn' => array('success', 'Die zurückgezogene Anfrage wurde gelöscht.'),
             'rejection_mail_failed' => array('error', 'Die Ablehnungs-E-Mail konnte nicht übergeben werden. Die Anfrage blieb offen.'),
             'invalid_loan' => array('error', 'Diese Ausleihe ist nicht mehr aktiv.'),

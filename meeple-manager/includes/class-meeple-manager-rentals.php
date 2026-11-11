@@ -191,6 +191,11 @@ class Meeple_Manager_Rentals {
             $this->redirect_admin('requests', 'request_rejected');
         }
 
+        if ($decision === 'delete') {
+            wp_delete_post($request_id, true);
+            $this->redirect_admin('requests', 'request_deleted');
+        }
+
         if ($decision === 'withdrawn') {
             wp_delete_post($request_id, true);
             $this->redirect_admin('requests', 'request_withdrawn');
