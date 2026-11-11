@@ -17,9 +17,9 @@ class Meeple_Manager_Rentals {
         $page_id = absint($this->posted_value('meeple_lending_page_id'));
         $page = $page_id > 0 ? get_post($page_id) : null;
 
-        if (!$page instanceof WP_Post || $page->post_password === '' || post_password_required($page)
-            || ($page->post_status !== 'publish' && !current_user_can('edit_post', $page_id))) {
-            wp_die(esc_html('Bitte öffne die passwortgeschützte Verleihseite erneut und gib bei Bedarf das Seitenpasswort ein.'), '', array('response' => 403));
+        if (!$page instanceof WP_Post
+            || ($page->post_status !== 'publish' && !current_user_can('read_post', $page_id))) {
+            wp_die(esc_html('Die Formularseite ist nicht verfügbar. Bitte öffne die Verleihseite erneut.'), '', array('response' => 403));
         }
 
         check_admin_referer('meeple_manager_submit_request_' . $page_id, 'meeple_manager_request_nonce');

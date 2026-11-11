@@ -1,6 +1,6 @@
 # MeepleManager
 
-MeepleManager is a WordPress plugin for club events and a board-game lending inventory. It keeps the existing Event-Blocks event data and `[event_blocks]` shortcode compatible while adding a public game catalog, a password-protected lending area, request handling, lending history, and CSV inventory tools.
+MeepleManager is a WordPress plugin for club events and a board-game lending inventory. It keeps the existing Event-Blocks event data and `[event_blocks]` shortcode compatible while adding a public game catalog, a lending area, request handling, lending history, and CSV inventory tools.
 
 ## Features
 
@@ -8,11 +8,11 @@ MeepleManager is a WordPress plugin for club events and a board-game lending inv
 - Game inventory with unique inventory numbers, fixed lending categories, condition notes, featured images with adjustable fitting and position, and favorites
 - Public game catalog with card and table views, title search, game-category filters, and sorting by title, player count, or play time
 - Game cards that flip to show player count, play time, and assigned game categories
-- Configurable placeholder image and opacity, image fit and position, card frame thickness, favorite flame colors, and colors for catalog cards and the protected lending area
+- Configurable placeholder image and opacity, image fit and position, card frame thickness, favorite flame colors, and colors for catalog cards and the lending area
 - Configurable thickness for lending-table lines
 - Configurable border thickness for the lending-request box
 - Configurable background, text, and accent colors for request confirmations
-- Password-protected lending list with availability and planned return dates
+- Lending list with availability and planned return dates; page visibility is managed through WordPress
 - Searchable lending table sorted by inventory number by default, with sorting by inventory number or title and a compact, labeled mobile layout
 - Member requests that staff approve or reject in the WordPress admin
 - Edit each loan-approval email before sending it, including handover details
@@ -39,7 +39,7 @@ Add the public game-card catalog to a page:
 [game-list]
 ```
 
-Create a WordPress page, set its visibility to **Password protected**, and add the following shortcode to that page:
+Create a WordPress page and add the following shortcode:
 
 ```text
 [game-lending]
@@ -47,7 +47,7 @@ Create a WordPress page, set its visibility to **Password protected**, and add t
 
 The previous `[meeple-lending]` shortcode remains available as an alias.
 
-The shared page password is limited to 20 characters by WordPress. WordPress core does not lock out repeated incorrect attempts for this page password. Use a long, unique password and do not reuse an administrator password. The lending list never displays borrower names or email addresses.
+Manage access using the page's WordPress visibility settings, for example **Password protected**. MeepleManager does not require a page password, display its own password form, or check password cookies when rendering or submitting requests. The request form retains its page-specific nonce validation. The lending list never displays borrower names or email addresses.
 
 ## Admin
 
@@ -80,7 +80,7 @@ Both catalog views use uncropped source images, with fitting controlled by **Spi
 
 An active loan makes a game appear as unavailable. Pending requests do not reserve a game. The warden coordinates competing requests outside the plugin.
 
-The page password is checked again when a request is submitted. If access has expired, reopen the protected page before sending the form again. Games with missing or invalid lending categories are shown as unavailable until their category is saved in the game editor. Decisions for the same game are processed one at a time to prevent simultaneous approvals or conflicting actions on a request.
+Games with missing or invalid lending categories are shown as unavailable until their category is saved in the game editor. Decisions for the same game are processed one at a time to prevent simultaneous approvals or conflicting actions on a request.
 
 ## CSV format
 

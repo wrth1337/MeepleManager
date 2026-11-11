@@ -98,7 +98,7 @@ class Meeple_Manager_Game_Style_Settings {
         ?>
         <div class="wrap meeple-manager-admin meeple-manager-game-style-editor">
             <h1>Spiele-Design</h1>
-            <p>Lege Farben, Bildanpassung und Linienstärken für den Katalog und den passwortgeschützten Verleihbereich fest. Die Vorschau rechts zeigt beide Ansichten.</p>
+            <p>Lege Farben, Bildanpassung und Linienstärken für den Katalog und den Verleihbereich fest. Die Vorschau rechts zeigt beide Ansichten.</p>
             <?php settings_errors('meeple_manager_game_style_messages'); ?>
             <div class="meeple-manager-game-style-editor__layout">
                 <form class="meeple-manager-admin-card meeple-manager-game-style-editor__form" method="post" action="options.php" data-meeple-game-style-form>
@@ -131,7 +131,7 @@ class Meeple_Manager_Game_Style_Settings {
                                 <h2 class="meeple-manager-catalog__title">Die Crew</h2>
                             </li>
                         </ul>
-                        <h3>Passwortgeschützter Verleih</h3>
+                        <h3>Spieleverleih</h3>
                         <div class="meeple-manager-lending">
                             <div class="meeple-manager-table-wrap">
                                 <table class="meeple-manager-table">

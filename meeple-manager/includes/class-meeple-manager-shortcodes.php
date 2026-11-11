@@ -311,12 +311,8 @@ class Meeple_Manager_Shortcodes {
     public function render_lending_area() {
         global $post;
 
-        if (!$post instanceof WP_Post || !is_singular() || $post->post_password === '') {
-            return '<p class="meeple-manager-notice">Der Verleihbereich muss auf einer passwortgeschützten WordPress-Seite eingebunden werden.</p>';
-        }
-
-        if (post_password_required($post)) {
-            return get_the_password_form($post);
+        if (!$post instanceof WP_Post || !is_singular()) {
+            return '<p class="meeple-manager-notice">Bitte binde den Verleihbereich in eine WordPress-Seite ein.</p>';
         }
 
         $games = get_posts(

@@ -88,7 +88,7 @@ class Meeple_Manager_Game_Meta_Box {
                     <th scope="row"><label for="meeple-manager-condition">Zustand und bekannte Schäden</label></th>
                     <td>
                         <textarea id="meeple-manager-condition" name="meeple_manager_condition" rows="4" class="large-text"><?php echo esc_textarea($condition); ?></textarea>
-                        <p class="description">Freitext. Diese Angabe erscheint nur im passwortgeschützten Verleihbereich.</p>
+                        <p class="description">Freitext. Diese Angabe erscheint nur im Verleihbereich.</p>
                     </td>
                 </tr>
                 <tr>
