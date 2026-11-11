@@ -143,6 +143,7 @@ class Meeple_Manager_Game_Style_Settings {
                                     </tbody>
                                 </table>
                             </div>
+                            <div class="meeple-manager-notice meeple-manager-notice--success" role="status">Deine Anfrage wurde gespeichert. Du erhältst eine Eingangsbestätigung per E-Mail.</div>
                             <section class="meeple-manager-request">
                                 <h3 class="meeple-manager-request__title">Ausleihanfrage stellen</h3>
                                 <p><input type="text" placeholder="Vorname"></p>
@@ -349,6 +350,27 @@ class Meeple_Manager_Game_Style_Settings {
                 'type' => 'color',
                 'default' => '#bb3030',
                 'css_variable' => '--meeple-manager-game-category-red',
+            ),
+            'success_notice_background' => array(
+                'section' => 'Benachrichtigung nach Anfrage',
+                'label' => 'Hintergrundfarbe',
+                'type' => 'color',
+                'default' => '#eff8f0',
+                'css_variable' => '--meeple-manager-success-notice-bg',
+            ),
+            'success_notice_text_color' => array(
+                'section' => 'Benachrichtigung nach Anfrage',
+                'label' => 'Textfarbe',
+                'type' => 'color',
+                'default' => '#1a281d',
+                'css_variable' => '--meeple-manager-success-notice-text',
+            ),
+            'success_notice_accent_color' => array(
+                'section' => 'Benachrichtigung nach Anfrage',
+                'label' => 'Farbe des linken Akzentstreifens',
+                'type' => 'color',
+                'default' => '#25803b',
+                'css_variable' => '--meeple-manager-success-notice-accent',
             ),
             'favorite_flame_outer_color' => array(
                 'section' => 'Favoriten',
