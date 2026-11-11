@@ -251,13 +251,12 @@
     transition: transform .55s ease;
 }
 
-.meeple-manager-game-card.is-flipped .meeple-manager-game-card__inner,
-.meeple-manager-game-card:focus-visible .meeple-manager-game-card__inner {
+.meeple-manager-game-card.is-flipped .meeple-manager-game-card__inner {
     transform: rotateY(180deg);
 }
 
 @media (hover: hover) and (pointer: fine) {
-    .meeple-manager-catalog-wrap .meeple-manager-catalog__item:hover:not(.is-hovering-favorite) .meeple-manager-game-card__inner {
+    .meeple-manager-catalog-wrap .meeple-manager-catalog__item:hover:not(.is-hovering-favorite) .meeple-manager-game-card:not(.is-flip-controlled) .meeple-manager-game-card__inner {
         transform: rotateY(180deg);
     }
 }
@@ -540,22 +539,20 @@
 }
 
 .meeple-manager-game-card.is-flipped .meeple-manager-favorite-badge,
-.meeple-manager-game-card:focus-visible .meeple-manager-favorite-badge,
-.meeple-manager-game-card.is-flipped .meeple-manager-game-card__tap-hint,
-.meeple-manager-game-card:focus-visible .meeple-manager-game-card__tap-hint {
+.meeple-manager-game-card.is-flipped .meeple-manager-game-card__tap-hint {
     visibility: hidden;
     opacity: 0;
     transition: opacity .12s ease, visibility 0s linear .12s;
 }
 
 @media (hover: hover) and (pointer: fine) {
-    .meeple-manager-catalog-wrap .meeple-manager-catalog__item:hover:not(.is-hovering-favorite) .meeple-manager-favorite-badge {
+    .meeple-manager-catalog-wrap .meeple-manager-catalog__item:hover:not(.is-hovering-favorite) .meeple-manager-game-card:not(.is-flip-controlled) .meeple-manager-favorite-badge {
         visibility: hidden;
         opacity: 0;
         transition: opacity .12s ease, visibility 0s linear .12s;
     }
 
-    .meeple-manager-catalog-wrap .meeple-manager-catalog__item:hover .meeple-manager-game-card__tap-hint {
+    .meeple-manager-catalog-wrap .meeple-manager-catalog__item:hover .meeple-manager-game-card:not(.is-flip-controlled) .meeple-manager-game-card__tap-hint {
         visibility: hidden;
         opacity: 0;
         transition: opacity .12s ease, visibility 0s linear .12s;

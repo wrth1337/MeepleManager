@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 var title = (card.getAttribute('data-game-title') || '').toLocaleLowerCase('de-DE');
                 var categories = (card.getAttribute('data-game-categories') || '').split(/\s+/).filter(Boolean);
                 var matchesTitle = query === '' || title.indexOf(query) !== -1;
-                var matchesCategory = categories.length === 0 || categories.some(function (category) {
+                var matchesCategory = categories.every(function (category) {
                     return enabledCategories[category] !== false;
                 });
                 var matches = matchesTitle && matchesCategory;
@@ -148,11 +148,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
             var ascending = sortDirection === 'asc';
             sortDirectionButton.textContent = ascending ? '↑' : '↓';
-            sortDirectionButton.setAttribute('aria-label', ascending ? 'Aufsteigend sortieren' : 'Absteigend sortieren');
-            sortDirectionButton.setAttribute('title', ascending ? 'Aufsteigend sortieren' : 'Absteigend sortieren');
+            sortDirectionButton.setAttribute('aria-label', ascending ? 'Absteigend sortieren' : 'Aufsteigend sortieren');
+            sortDirectionButton.setAttribute('title', ascending ? 'Absteigend sortieren' : 'Aufsteigend sortieren');
         }
 
         function setFlipped(card, flipped) {
+            card.classList.add('is-flip-controlled');
             card.classList.toggle('is-flipped', flipped);
             card.setAttribute('aria-expanded', flipped ? 'true' : 'false');
         }
@@ -189,30 +190,41 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         function isFlipped(card) {
-            var supportsHover = window.matchMedia && window.matchMedia('(hover: hover)').matches;
+            var supportsHover = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
             return card.classList.contains('is-flipped')
-                || (supportsHover && card.matches(':hover') && !card.closest('.meeple-manager-catalog__item').classList.contains('is-hovering-favorite'))
-                || card.matches(':focus-visible');
+                || (!card.classList.contains('is-flip-controlled') && supportsHover && card.matches(':hover')
+                    && !card.closest('.meeple-manager-catalog__item').classList.contains('is-hovering-favorite'));
         }
 
         list.querySelectorAll('[data-game-card]').forEach(function (card) {
+            var touchInput = false;
+            card.addEventListener('pointerdown', function (event) {
+                touchInput = event.pointerType !== 'mouse';
+                if (touchInput) {
+                    // Touch can coexist with a mouse: suppress sticky CSS hover for this interaction.
+                    card.classList.add('is-flip-controlled');
+                }
+            });
+
             card.addEventListener('click', function (event) {
-                var supportsHover = window.matchMedia && window.matchMedia('(hover: hover)').matches;
-                if (event.detail === 0 || !supportsHover) {
-                    setFlipped(card, !card.classList.contains('is-flipped'));
+                var supportsHover = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+                if (event.detail === 0 || touchInput || !supportsHover) {
+                    setFlipped(card, !isFlipped(card));
                 }
             });
 
             card.addEventListener('keydown', function (event) {
                 if (event.key === 'Enter' || event.key === ' ') {
                     event.preventDefault();
-                    setFlipped(card, !card.classList.contains('is-flipped'));
+                    if (!event.repeat) {
+                        setFlipped(card, !isFlipped(card));
+                    }
                 }
             });
 
             card.addEventListener('pointerenter', function (event) {
                 if (event.pointerType === 'mouse') {
-                    card.setAttribute('aria-expanded', 'true');
+                    card.setAttribute('aria-expanded', isFlipped(card) ? 'true' : 'false');
                 }
             });
 
@@ -221,12 +233,11 @@ document.addEventListener('DOMContentLoaded', function () {
             });
 
             card.addEventListener('focus', function () {
-                if (card.matches(':focus-visible')) {
-                    card.setAttribute('aria-expanded', 'true');
-                }
+                card.setAttribute('aria-expanded', isFlipped(card) ? 'true' : 'false');
             });
 
             card.addEventListener('blur', function () {
+                card.classList.remove('is-flip-controlled', 'is-flipped');
                 card.setAttribute('aria-expanded', isFlipped(card) ? 'true' : 'false');
             });
 
@@ -249,6 +260,7 @@ document.addEventListener('DOMContentLoaded', function () {
         updateSortDirection();
         updateCategoryCount();
         setView('cards');
+        filterGames();
         search.addEventListener('input', filterGames);
     });
 });

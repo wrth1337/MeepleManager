@@ -25,7 +25,8 @@ class Meeple_Manager_Shortcodes {
                 'meta_query' => array(
                     array(
                         'key' => MEEPLE_MANAGER_META_INVENTORY_NUMBER,
-                        'compare' => 'EXISTS',
+                        'value' => '',
+                        'compare' => '!=',
                     ),
                 ),
             )
@@ -96,7 +97,7 @@ class Meeple_Manager_Shortcodes {
         }
         $output .= '<div class="meeple-manager-catalog-sort">';
         $output .= '<label><span>Sortieren</span><select data-game-list-sort aria-label="Spiele sortieren nach"><option value="title">Titel</option><option value="players">Spieleranzahl</option><option value="duration">Spieledauer</option></select></label>';
-        $output .= '<button type="button" class="meeple-manager-catalog-sort-direction" data-game-list-sort-direction aria-label="Aufsteigend sortieren" title="Aufsteigend sortieren">↑</button>';
+        $output .= '<button type="button" class="meeple-manager-catalog-sort-direction" data-game-list-sort-direction aria-label="Absteigend sortieren" title="Absteigend sortieren">↑</button>';
         $output .= '</div>';
         $output .= '<div class="meeple-manager-catalog-view-controls" role="group" aria-label="Darstellung des Spielekatalogs">';
         $output .= '<button type="button" class="meeple-manager-catalog-view-button is-active" data-game-list-view="cards" aria-pressed="true">Kacheln</button>';
@@ -142,6 +143,15 @@ class Meeple_Manager_Shortcodes {
                 $game_categories = array();
             }
             $game_category_slugs = wp_list_pluck($game_categories, 'slug');
+            foreach ($game_categories as $game_category) {
+                foreach (get_ancestors($game_category->term_id, MEEPLE_MANAGER_GAME_INFO_TAXONOMY, 'taxonomy') as $ancestor_id) {
+                    $ancestor = get_term($ancestor_id, MEEPLE_MANAGER_GAME_INFO_TAXONOMY);
+                    if ($ancestor && !is_wp_error($ancestor)) {
+                        $game_category_slugs[] = $ancestor->slug;
+                    }
+                }
+            }
+            $game_category_slugs = array_unique($game_category_slugs);
             $game_category_names = wp_list_pluck($game_categories, 'name');
             $players_min = (int) get_post_meta($game->ID, MEEPLE_MANAGER_META_PLAYERS_MIN, true);
             $players_max = (int) get_post_meta($game->ID, MEEPLE_MANAGER_META_PLAYERS_MAX, true);
@@ -160,8 +170,8 @@ class Meeple_Manager_Shortcodes {
                 'Minuten'
             );
             $is_favorite = get_post_meta($game->ID, MEEPLE_MANAGER_META_FAVORITE, true) === '1';
-            $players_sort_value = $players_min > 0 ? (string) $players_min : '';
-            $duration_sort_value = $duration_min > 0 ? (string) $duration_min : '';
+            $players_sort_value = $players_min > 0 ? (string) $players_min : ($players_max > 0 ? (string) $players_max : '');
+            $duration_sort_value = $duration_min > 0 ? (string) $duration_min : ($duration_max > 0 ? (string) $duration_max : '');
             $accessible_details = array($game->post_title);
             if ($players !== '') {
                 $accessible_details[] = $players;
@@ -180,21 +190,23 @@ class Meeple_Manager_Shortcodes {
                 'class' => 'meeple-manager-catalog-table__image',
                 'alt' => '',
                 'loading' => 'lazy',
+                'sizes' => '52px',
             );
             if (!empty($image_position)) {
                 $table_image_attributes['style'] = implode(';', $image_position) . ';';
             }
-            $table_image = get_the_post_thumbnail($game->ID, 'thumbnail', $table_image_attributes);
+            $table_image = get_the_post_thumbnail($game->ID, 'full', $table_image_attributes);
             if (!is_string($table_image) || $table_image === '') {
                 $table_image = $placeholder_image_id > 0
                     ? wp_get_attachment_image(
                         $placeholder_image_id,
-                        'thumbnail',
+                        'full',
                         false,
                         array(
                             'class' => 'meeple-manager-catalog-table__image meeple-manager-catalog-table__image--placeholder',
                             'alt' => '',
                             'loading' => 'lazy',
+                            'sizes' => '52px',
                         )
                     )
                     : '<span class="meeple-manager-catalog-table__placeholder" aria-hidden="true">🎲</span>';
