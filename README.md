@@ -15,6 +15,7 @@ MeepleManager is a WordPress plugin for club events and a board-game lending inv
 - Searchable lending table with sorting by inventory number or title and a compact, labeled mobile layout
 - Member requests that staff approve or reject in the WordPress admin
 - Edit each loan-approval email before sending it, including handover details
+- Approve or reject requests with the matching editable email, or delete a pending request without sending an email
 - Automatic request, approval, and rejection emails through WordPress mail
 - Admin-only active-loan list and return history
 - CSV import and export for game inventory
