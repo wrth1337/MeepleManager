@@ -70,8 +70,28 @@ class Meeple_Manager_Shortcodes {
                 )
             )
             : '';
+        $catalog_categories = get_terms(
+            array(
+                'taxonomy' => MEEPLE_MANAGER_GAME_INFO_TAXONOMY,
+                'hide_empty' => true,
+                'orderby' => 'name',
+                'order' => 'ASC',
+            )
+        );
+        if (is_wp_error($catalog_categories)) {
+            $catalog_categories = array();
+        }
+
         $output = '<div class="meeple-manager-catalog-wrap">';
         $output .= '<div class="meeple-manager-catalog-controls"><label>Spiel nach Titel suchen<input type="search" data-game-list-search placeholder="Titel eingeben" autocomplete="off"></label></div>';
+        if (!empty($catalog_categories)) {
+            $output .= '<div class="meeple-manager-catalog-filters" data-game-category-filters role="group" aria-label="Nach Spielkategorie filtern">';
+            $output .= '<span class="meeple-manager-catalog-filters__label">Kategorien:</span>';
+            foreach ($catalog_categories as $catalog_category) {
+                $output .= '<button type="button" class="meeple-manager-catalog-filter is-active" data-game-category-filter="' . esc_attr($catalog_category->slug) . '" aria-pressed="true">' . esc_html($catalog_category->name) . '</button>';
+            }
+            $output .= '</div>';
+        }
         $output .= '<ul class="meeple-manager-catalog" data-game-list>';
 
         foreach ($games as $game) {
@@ -106,27 +126,109 @@ class Meeple_Manager_Shortcodes {
                     : '<div class="meeple-manager-game-card__placeholder">Kein Bild hinterlegt</div>';
             }
 
-            $output .= '<li class="meeple-manager-catalog__item" data-game-title="' . esc_attr($game->post_title) . '">';
+            $game_categories = get_the_terms($game->ID, MEEPLE_MANAGER_GAME_INFO_TAXONOMY);
+            if (is_wp_error($game_categories) || !is_array($game_categories)) {
+                $game_categories = array();
+            }
+            $game_category_slugs = wp_list_pluck($game_categories, 'slug');
+            $game_category_names = wp_list_pluck($game_categories, 'name');
+            $players = $this->format_game_range(
+                get_post_meta($game->ID, MEEPLE_MANAGER_META_PLAYERS_MIN, true),
+                get_post_meta($game->ID, MEEPLE_MANAGER_META_PLAYERS_MAX, true),
+                'Spieler',
+                'Spieler'
+            );
+            $duration = $this->format_game_range(
+                get_post_meta($game->ID, MEEPLE_MANAGER_META_DURATION_MIN, true),
+                get_post_meta($game->ID, MEEPLE_MANAGER_META_DURATION_MAX, true),
+                'Minute',
+                'Minuten'
+            );
+            $is_favorite = get_post_meta($game->ID, MEEPLE_MANAGER_META_FAVORITE, true) === '1';
+            $accessible_details = array($game->post_title);
+            if ($players !== '') {
+                $accessible_details[] = $players;
+            }
+            if ($duration !== '') {
+                $accessible_details[] = $duration;
+            }
+            if (!empty($game_category_names)) {
+                $accessible_details[] = 'Kategorien: ' . implode(', ', $game_category_names);
+            }
+            if ($is_favorite) {
+                $accessible_details[] = 'Aktueller Favorit';
+            }
+
+            $output .= '<li class="meeple-manager-catalog__item" data-game-title="' . esc_attr($game->post_title) . '" data-game-categories="' . esc_attr(implode(' ', $game_category_slugs)) . '">';
+            $output .= '<div class="meeple-manager-game-card" data-game-card role="button" tabindex="0" aria-expanded="false" aria-label="' . esc_attr(implode('. ', $accessible_details) . '. Aktivieren, um die Kartenansicht umzuschalten.') . '">';
+            $output .= '<div class="meeple-manager-game-card__inner">';
+            $output .= '<div class="meeple-manager-game-card__face meeple-manager-game-card__face--front">';
             $output .= '<div class="meeple-manager-game-card__image-wrap' . ($is_placeholder ? ' meeple-manager-game-card__image-wrap--placeholder' : '') . '">' . $image;
-            if (get_post_meta($game->ID, MEEPLE_MANAGER_META_FAVORITE, true) === '1') {
+            if ($is_favorite) {
                 $output .= self::render_favorite_badge();
             }
             $output .= '</div>';
             $output .= '<h2 class="meeple-manager-catalog__title">' . esc_html($game->post_title) . '</h2>';
+            $output .= '</div>';
+            $output .= '<div class="meeple-manager-game-card__face meeple-manager-game-card__face--back">';
+            $output .= '<h2 class="meeple-manager-game-card__back-title">' . esc_html($game->post_title) . '</h2>';
+            $output .= '<dl class="meeple-manager-game-card__details">';
+            if ($players !== '') {
+                $output .= '<div><dt>Spieleranzahl</dt><dd>' . esc_html($players) . '</dd></div>';
+            }
+            if ($duration !== '') {
+                $output .= '<div><dt>Spieldauer</dt><dd>' . esc_html($duration) . '</dd></div>';
+            }
+            $output .= '</dl>';
+            $output .= '<div class="meeple-manager-game-card__categories"><span class="meeple-manager-game-card__details-label">Kategorien</span>';
+            if (!empty($game_category_names)) {
+                foreach ($game_category_names as $game_category_name) {
+                    $output .= '<span class="meeple-manager-game-card__category">' . esc_html($game_category_name) . '</span>';
+                }
+            } else {
+                $output .= '<span class="meeple-manager-game-card__category meeple-manager-game-card__category--empty">Keine zugeordnet</span>';
+            }
+            $output .= '</div></div></div></div>';
             $output .= '</li>';
         }
 
-        $output .= '</ul><p class="meeple-manager-catalog-no-results" data-game-list-no-results role="status" hidden>Kein Spiel mit diesem Titel gefunden.</p></div>';
+        $output .= '</ul><p class="meeple-manager-catalog-no-results" data-game-list-no-results role="status" hidden>Keine passenden Spiele gefunden.</p></div>';
 
         return $output;
     }
 
     public static function render_favorite_badge() {
-        return '<span class="meeple-manager-favorite-badge" role="img" aria-label="Aktueller Favorit" title="Heiß" tabindex="0">'
+        return '<span class="meeple-manager-favorite-badge" data-meeple-favorite-badge role="img" aria-label="Aktueller Favorit" title="Heiß">'
             . '<svg class="meeple-manager-favorite-badge__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
             . '<path class="meeple-manager-favorite-badge__flame-outer" d="M12 23a8 8 0 0 1-8-8c0-3.6 2.1-6.7 5.4-8.1.2 2.1 1.4 3.4 2.5 4.2C13 7.5 12.9 4.1 11.5 1 16.7 4.7 20 9.2 20 15a8 8 0 0 1-8 8Z"/>'
             . '<path class="meeple-manager-favorite-badge__flame-inner" d="M12 20a4.5 4.5 0 0 1-4.5-4.5c0-1.7.9-3.2 2.3-4 .3 1.1 1 1.8 1.9 2.2.8-1.1 1.1-2.6.8-4.2 2.3 1.8 4 3.8 4 6A4.5 4.5 0 0 1 12 20Z"/>'
             . '</svg><span class="meeple-manager-favorite-badge__tooltip" aria-hidden="true">Heiß</span></span>';
+    }
+
+    private function format_game_range($minimum, $maximum, $unit_singular, $unit_plural) {
+        $minimum = (int) $minimum;
+        $maximum = (int) $maximum;
+
+        if ($minimum > 0 && $maximum > 0) {
+            if ($minimum === $maximum) {
+                $unit = $minimum === 1 ? $unit_singular : $unit_plural;
+                return $minimum . ' ' . $unit;
+            }
+
+            return min($minimum, $maximum) . '–' . max($minimum, $maximum) . ' ' . $unit_plural;
+        }
+
+        if ($minimum > 0) {
+            $unit = $minimum === 1 ? $unit_singular : $unit_plural;
+            return 'ab ' . $minimum . ' ' . $unit;
+        }
+
+        if ($maximum > 0) {
+            $unit = $maximum === 1 ? $unit_singular : $unit_plural;
+            return 'bis ' . $maximum . ' ' . $unit;
+        }
+
+        return '';
     }
 
     public function render_lending_area() {
