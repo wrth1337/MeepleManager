@@ -540,7 +540,9 @@
 }
 
 .meeple-manager-game-card.is-flipped .meeple-manager-favorite-badge,
-.meeple-manager-game-card:focus-visible .meeple-manager-favorite-badge {
+.meeple-manager-game-card:focus-visible .meeple-manager-favorite-badge,
+.meeple-manager-game-card.is-flipped .meeple-manager-game-card__tap-hint,
+.meeple-manager-game-card:focus-visible .meeple-manager-game-card__tap-hint {
     visibility: hidden;
     opacity: 0;
     transition: opacity .12s ease, visibility 0s linear .12s;
@@ -551,6 +553,50 @@
         visibility: hidden;
         opacity: 0;
         transition: opacity .12s ease, visibility 0s linear .12s;
+    }
+
+    .meeple-manager-catalog-wrap .meeple-manager-catalog__item:hover .meeple-manager-game-card__tap-hint {
+        visibility: hidden;
+        opacity: 0;
+        transition: opacity .12s ease, visibility 0s linear .12s;
+    }
+}
+
+.meeple-manager-game-card__tap-hint {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    z-index: 2;
+    display: grid;
+    width: 36px;
+    height: 36px;
+    place-items: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .94);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .2);
+    color: #1a281d;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity .15s ease, visibility 0s linear .15s;
+}
+
+.meeple-manager-game-card__tap-hint svg {
+    display: block;
+    width: 21px;
+    height: 21px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
+}
+
+@media (hover: none), (pointer: coarse), (max-width: 760px) {
+    .meeple-manager-game-card__tap-hint {
+        opacity: 1;
+        visibility: visible;
+        transition: opacity .15s ease, visibility 0s linear;
     }
 }
 
