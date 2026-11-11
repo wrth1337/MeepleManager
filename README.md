@@ -19,7 +19,7 @@ MeepleManager is a WordPress plugin for club events and a board-game lending inv
 - Approve or reject requests with the matching editable email, or delete a pending request without sending an email
 - Automatic request, approval, and rejection emails through WordPress mail
 - Admin-only active-loan list and return history
-- CSV import and export for game inventory
+- CSV import and export for game inventory, including player counts, play times, game categories, image references, and publication status
 - Automatic anonymization of borrower contact details three months after return
 
 ## Shortcodes
@@ -83,10 +83,32 @@ An active loan makes a game appear as unavailable. Pending requests do not reser
 CSV export uses these headers:
 
 ```text
-Inventarnummer,Titel,Kategorie,Zustand,Favorit
+Inventarnummer,Titel,Ausleihkategorie,Zustand,Favorit,Spieleranzahl min,Spieleranzahl max,Spieldauer min,Spieldauer max,Spielkategorien,Bild-URL,Bildposition X,Bildposition Y,Status
 ```
 
-The importer also accepts English column names (`inventory_number`, `title`, `category`, `condition`, `favorite`). Favorite values such as `Ja`, `Yes`, or `1` are treated as enabled. Existing inventory numbers are skipped. Missing categories default to green. Loan history and personal data are not part of the inventory CSV.
+Only inventory number and title are required. Legacy CSV files remain supported, including the old `Kategorie` header for the green/yellow/red lending category. The importer accepts comma- or semicolon-separated UTF-8 files, with or without a byte-order mark (BOM).
+
+| German header | English alias | Value |
+| --- | --- | --- |
+| Inventarnummer | `inventory_number` | Unique inventory number; existing numbers are skipped |
+| Titel | `title` | Game title |
+| Ausleihkategorie | `category`, `lending_category` | Grün/Green, Gelb/Yellow, Rot/Red; defaults to green |
+| Zustand | `condition` | Condition notes, including line breaks |
+| Favorit | `favorite` | `Ja`, `Yes`, `1`, or `true` enables the favorite flag |
+| Spieleranzahl min / max | `players_min`, `players_max` | Positive whole numbers; either bound can be left empty |
+| Spieldauer min / max | `duration_min`, `duration_max` | Positive whole numbers in minutes; either bound can be left empty |
+| Spielkategorien | `game_categories` | JSON list of category paths, or names separated by `\|` |
+| Bild-URL | `image_url` | Featured-image URL; matched against the destination site's media library |
+| Bildposition X / Y | `image_position_x`, `image_position_y` | Whole numbers from 0 to 100; empty uses the global design default |
+| Status | `status`, `post_status` | `publish`, `draft`, `pending`, or `private`; defaults to `publish` |
+
+The exporter writes assigned game categories as JSON paths, for example `[["Brettspiele","Strategie"],["Kooperativ"]]`. This preserves parent categories and names containing commas, quotes, or `|`. Each path assigns its last category; ancestors are created or reused without being automatically assigned to the game. For a manually prepared CSV, `Kooperativ | Strategie` or `["Kooperativ","Strategie"]` creates or reuses top-level categories. Keep the exported JSON value when editing in a spreadsheet; normal CSV quoting is handled by the spreadsheet application.
+
+Invalid numbers, reversed ranges, malformed category lists, and unknown publication statuses cause the affected record to be skipped with an error message. Empty optional values stay empty. Duplicate inventory numbers are skipped without modifying the existing games.
+
+Images are **references, not embedded files**. On import, matching image attachments are reused; files are not downloaded. A missing image is reported, while the rest of the game is imported. For another WordPress installation, transfer the media separately and adapt the image URLs before importing, or assign featured images afterwards.
+
+The CSV includes published, draft, pending, and private games. It is an inventory transfer, not a complete site backup: loan history, personal data, global design settings, media files, and category descriptions/custom slugs are not included.
 
 ## Email and scheduled anonymization
 
