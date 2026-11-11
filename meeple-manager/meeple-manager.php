@@ -78,6 +78,7 @@ require_once MEEPLE_MANAGER_DIR . 'includes/class-meeple-manager-content-types.p
 require_once MEEPLE_MANAGER_DIR . 'admin/class-meeple-manager-game-meta-box.php';
 require_once MEEPLE_MANAGER_DIR . 'includes/class-meeple-manager-rentals.php';
 require_once MEEPLE_MANAGER_DIR . 'includes/class-meeple-manager-shortcodes.php';
+require_once MEEPLE_MANAGER_DIR . 'includes/class-meeple-manager-inventory-csv.php';
 require_once MEEPLE_MANAGER_DIR . 'admin/class-meeple-manager-admin.php';
 require_once MEEPLE_MANAGER_DIR . 'admin/class-meeple-manager-game-style-settings.php';
 require_once MEEPLE_MANAGER_DIR . 'includes/class-event-blocks-plugin.php';

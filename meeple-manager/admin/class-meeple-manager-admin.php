@@ -262,14 +262,19 @@ class Meeple_Manager_Admin {
         ?>
         <div class="wrap meeple-manager-admin">
             <h1>CSV-Import und -Export</h1>
-            <p>Die Datei enthält Inventarnummer, Titel, Kategorie und Zustand. Ausleihvorgänge und Mitgliederdaten werden nicht importiert oder exportiert. Beim Import werden Inventarnummern, die bereits vorhanden sind, übersprungen.</p>
+            <p>Die Datei enthält die Inventardaten einschließlich Spieleranzahl, Spieldauer, Spielkategorien, Favoriten, Bild-URL, Bildposition und Veröffentlichungsstatus. Ausleihvorgänge und Mitgliederdaten werden nicht importiert oder exportiert. Beim Import werden Inventarnummern, die bereits vorhanden sind, übersprungen.</p>
             <section class="meeple-manager-admin-card">
                 <h2>Inventar exportieren</h2>
                 <p><a class="button button-primary" href="<?php echo esc_url($export_url); ?>">CSV-Datei herunterladen</a></p>
             </section>
             <section class="meeple-manager-admin-card">
                 <h2>Inventar importieren</h2>
-                <p>Erwartete Spalten: <code>Inventarnummer</code>, <code>Titel</code>, <code>Kategorie</code>, <code>Zustand</code> und optional <code>Favorit</code>. Inventarnummer und Titel sind Pflicht; fehlende Kategorie wird als Grün importiert.</p>
+                <p>Spalten: <code><?php echo esc_html(implode(', ', Meeple_Manager_Inventory_CSV::get_headers())); ?></code>.</p>
+                <p>Nur <strong>Inventarnummer und Titel</strong> sind Pflicht. Alte CSV-Dateien und englische Spaltennamen werden weiterhin unterstützt. Die bisherige Spalte <code>Kategorie</code> entspricht <code>Ausleihkategorie</code> (Grün/Gelb/Rot); ohne Angabe gilt Grün.</p>
+                <p>Spieleranzahl und Spieldauer haben jeweils einen Minimal- und Maximalwert (Dauer in Minuten). Trage positive ganze Zahlen ein oder lasse unbekannte Werte leer. Bildpositionen sind ganze Zahlen von 0 bis 100; leer bedeutet Design-Standard. Ungültige Werte und Bereiche werden gemeldet und die betroffenen Datensätze übersprungen.</p>
+                <p>Mehrere <strong>Spielkategorien</strong> kannst du mit <code>|</code> trennen, zum Beispiel <code>Kooperativ | Strategie</code>. Der Export verwendet eine JSON-Liste von Kategoriepfaden, damit auch Unterkategorien und Sonderzeichen erhalten bleiben, zum Beispiel <code>[["Brettspiele","Strategie"],["Kooperativ"]]</code>. Fehlende Kategorien werden beim Import angelegt.</p>
+                <p><strong>Bilder:</strong> Die CSV enthält Bild-URLs, keine Bilddateien. Beim Import werden vorhandene Bilder aus der Mediathek über ihre URL zugeordnet. Nicht gefundene Bilder werden gemeldet; du kannst sie anschließend als Beitragsbild festlegen.</p>
+                <p><strong>Status:</strong> <code>publish</code> (veröffentlicht), <code>draft</code> (Entwurf), <code>pending</code> (ausstehend) oder <code>private</code> (privat). Ohne Angabe werden Spiele veröffentlicht. Globale Design-Einstellungen sind nicht Teil der CSV.</p>
                 <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" enctype="multipart/form-data">
                     <input type="hidden" name="action" value="meeple_manager_import_csv">
                     <?php wp_nonce_field('meeple_manager_import_csv', 'meeple_manager_import_nonce'); ?>
@@ -386,27 +391,17 @@ class Meeple_Manager_Admin {
 
         $delimiter = substr_count($first_line, ';') > substr_count($first_line, ',') ? ';' : ',';
         rewind($handle);
-        $header = fgetcsv($handle, 0, $delimiter, '"', '\\');
+        $header = fgetcsv($handle, 0, $delimiter, '"', '');
 
         if (!is_array($header)) {
             fclose($handle);
             $this->redirect_import_error('headers');
         }
 
-        $header[0] = preg_replace('/^\xEF\xBB\xBF/', '', (string) $header[0]);
-        $columns = array();
+        $csv = new Meeple_Manager_Inventory_CSV();
+        $columns = $csv->map_columns($header);
 
-        foreach ($header as $index => $name) {
-            $columns[$this->normalize_header($name)] = (int) $index;
-        }
-
-        $number_column = $this->find_column($columns, array('inventarnummer', 'inventorynumber', 'inventory_number', 'nummer', 'nr'));
-        $title_column = $this->find_column($columns, array('titel', 'title', 'name', 'spiel'));
-        $category_column = $this->find_column($columns, array('kategorie', 'category'));
-        $condition_column = $this->find_column($columns, array('zustand', 'condition'));
-        $favorite_column = $this->find_column($columns, array('favorit', 'aktueller_favorit', 'favorite', 'current_favorite'));
-
-        if ($number_column === null || $title_column === null) {
+        if (!isset($columns['inventory_number'], $columns['title'])) {
             fclose($handle);
             $this->redirect_import_error('headers');
         }
@@ -414,63 +409,36 @@ class Meeple_Manager_Admin {
         $created = 0;
         $duplicates = 0;
         $invalid = 0;
+        $missing_images = 0;
+        $errors = array();
+        $record = 0;
 
-        while (($row = fgetcsv($handle, 0, $delimiter, '"', '\\')) !== false) {
+        while (($row = fgetcsv($handle, 0, $delimiter, '"', '')) !== false) {
             if (!is_array($row) || $row === array(null)) {
                 continue;
             }
 
-            $inventory_number = isset($row[$number_column]) ? trim(sanitize_text_field($row[$number_column])) : '';
-            $title = isset($row[$title_column]) ? trim(sanitize_text_field($row[$title_column])) : '';
-
-            if ($inventory_number === '' || $title === '') {
+            $record++;
+            $result = $csv->import_row($row, $columns);
+            if (is_wp_error($result)) {
                 $invalid++;
-                continue;
-            }
-
-            if ($this->inventory_number_exists($inventory_number)) {
+                if (count($errors) < 10) {
+                    $errors[] = sprintf('Datensatz %1$d: %2$s', $record, $result->get_error_message());
+                }
+            } elseif ($result['status'] === 'duplicate') {
                 $duplicates++;
-                continue;
+            } else {
+                $created++;
+                if ($result['missing_image']) {
+                    $missing_images++;
+                }
             }
-
-            $category_value = $category_column !== null && isset($row[$category_column])
-                ? $this->normalize_category($row[$category_column])
-                : 'green';
-            $condition = $condition_column !== null && isset($row[$condition_column])
-                ? sanitize_textarea_field($row[$condition_column])
-                : '';
-            $game_id = wp_insert_post(
-                array(
-                    'post_type' => MEEPLE_MANAGER_GAME_POST_TYPE,
-                    'post_status' => 'publish',
-                    'post_title' => $title,
-                ),
-                true
-            );
-
-            if (is_wp_error($game_id)) {
-                $invalid++;
-                continue;
-            }
-
-            update_post_meta($game_id, MEEPLE_MANAGER_META_INVENTORY_NUMBER, $inventory_number);
-            update_post_meta($game_id, MEEPLE_MANAGER_META_GAME_CATEGORY, $category_value);
-
-            if ($condition !== '') {
-                update_post_meta($game_id, MEEPLE_MANAGER_META_CONDITION, $condition);
-            }
-
-            if ($favorite_column !== null && isset($row[$favorite_column]) && $this->is_favorite_csv_value($row[$favorite_column])) {
-                update_post_meta($game_id, MEEPLE_MANAGER_META_FAVORITE, '1');
-            }
-
-            $created++;
         }
 
         fclose($handle);
         set_transient(
             'meeple_manager_csv_result_' . get_current_user_id(),
-            array('created' => $created, 'duplicates' => $duplicates, 'invalid' => $invalid),
+            array('created' => $created, 'duplicates' => $duplicates, 'invalid' => $invalid, 'missing_images' => $missing_images, 'errors' => $errors),
             MINUTE_IN_SECONDS
         );
 
@@ -491,30 +459,25 @@ class Meeple_Manager_Admin {
             )
         );
 
+        $csv = new Meeple_Manager_Inventory_CSV();
+        $rows = array();
+        foreach ($games as $game) {
+            $row = $csv->export_row($game);
+            if (is_wp_error($row)) {
+                wp_die(esc_html('Der CSV-Export konnte nicht erstellt werden: ' . $row->get_error_message()));
+            }
+            $rows[] = $row;
+        }
+
         nocache_headers();
         header('Content-Type: text/csv; charset=UTF-8');
         header('Content-Disposition: attachment; filename="meeplemanager-spiele-' . wp_date('Y-m-d') . '.csv"');
         echo "\xEF\xBB\xBF";
         $output = fopen('php://output', 'wb');
-        fputcsv($output, array('Inventarnummer', 'Titel', 'Kategorie', 'Zustand', 'Favorit'), ',', '"', '\\');
-        $categories = Meeple_Manager_Content_Types::get_categories();
+        fputcsv($output, Meeple_Manager_Inventory_CSV::get_headers(), ',', '"', '');
 
-        foreach ($games as $game) {
-            $category_key = get_post_meta($game->ID, MEEPLE_MANAGER_META_GAME_CATEGORY, true);
-            $category_label = isset($categories[$category_key]) ? $categories[$category_key]['short_label'] : 'Grün';
-            fputcsv(
-                $output,
-                array(
-                    get_post_meta($game->ID, MEEPLE_MANAGER_META_INVENTORY_NUMBER, true),
-                    $game->post_title,
-                    $category_label,
-                    get_post_meta($game->ID, MEEPLE_MANAGER_META_CONDITION, true),
-                    get_post_meta($game->ID, MEEPLE_MANAGER_META_FAVORITE, true) === '1' ? 'Ja' : 'Nein',
-                ),
-                ',',
-                '"',
-                '\\'
-            );
+        foreach ($rows as $row) {
+            fputcsv($output, $row, ',', '"', '');
         }
 
         fclose($output);
@@ -551,12 +514,25 @@ class Meeple_Manager_Admin {
 
             if (is_array($counts)) {
                 $message = sprintf(
-                    'Import abgeschlossen: %1$d Spiele angelegt, %2$d bestehende Inventarnummern übersprungen, %3$d ungültige Zeilen ausgelassen.',
+                    'Import abgeschlossen: %1$d Spiele angelegt, %2$d bestehende Inventarnummern übersprungen, %3$d Datensätze nicht importiert.',
                     (int) $counts['created'],
                     (int) $counts['duplicates'],
                     (int) $counts['invalid']
                 );
-                echo '<div class="notice notice-success is-dismissible"><p>' . esc_html($message) . '</p></div>';
+                $missing_images = isset($counts['missing_images']) ? (int) $counts['missing_images'] : 0;
+                if ($missing_images > 0) {
+                    $message .= sprintf(' Bei %d Spielen konnte das Bild nicht in der Mediathek gefunden oder zugeordnet werden. Bitte das Beitragsbild ergänzen.', $missing_images);
+                }
+                $notice_class = (int) $counts['invalid'] > 0 || $missing_images > 0 ? 'warning' : 'success';
+                echo '<div class="notice notice-' . esc_attr($notice_class) . ' is-dismissible"><p>' . esc_html($message) . '</p>';
+                if (!empty($counts['errors'])) {
+                    echo '<p>Fehlerdetails (maximal 10):</p><ul>';
+                    foreach ($counts['errors'] as $error) {
+                        echo '<li>' . esc_html($error) . '</li>';
+                    }
+                    echo '</ul>';
+                }
+                echo '</div>';
             }
 
             return;
@@ -638,68 +614,6 @@ class Meeple_Manager_Admin {
 
         $timestamp = DateTimeImmutable::createFromFormat('!Y-m-d', $date, wp_timezone())->getTimestamp();
         return wp_date('d.m.Y', $timestamp);
-    }
-
-    private function normalize_header($value) {
-        $value = strtolower(trim((string) $value));
-        $value = str_replace(array(' ', '-', '.', '/', '\\'), '_', $value);
-        return preg_replace('/[^a-z0-9_]/', '', remove_accents($value));
-    }
-
-    private function find_column($columns, $accepted) {
-        foreach ($accepted as $name) {
-            if (array_key_exists($name, $columns)) {
-                return $columns[$name];
-            }
-        }
-
-        return null;
-    }
-
-    private function normalize_category($value) {
-        $value = strtolower(remove_accents(trim((string) $value)));
-        $value = trim(preg_replace('/[^a-z0-9]+/', '_', $value), '_');
-        $map = array(
-            'green' => 'green',
-            'gruen' => 'green',
-            'grun' => 'green',
-            'grun_normal_ausleihbar' => 'green',
-            'yellow' => 'yellow',
-            'gelb' => 'yellow',
-            'gelb_nur_nach_freigabe' => 'yellow',
-            'yellow_nur_nach_freigabe' => 'yellow',
-            'red' => 'red',
-            'rot' => 'red',
-            'rot_nicht_ausleihbar' => 'red',
-            'red_nicht_ausleihbar' => 'red',
-        );
-
-        return isset($map[$value]) ? $map[$value] : 'green';
-    }
-
-    private function is_favorite_csv_value($value) {
-        $value = strtolower(remove_accents(trim((string) $value)));
-        return in_array($value, array('1', 'true', 'yes', 'ja', 'j', 'x', 'favorite', 'favorit'), true);
-    }
-
-    private function inventory_number_exists($inventory_number) {
-        $matches = get_posts(
-            array(
-                'post_type' => MEEPLE_MANAGER_GAME_POST_TYPE,
-                'post_status' => array('publish', 'draft', 'pending', 'private'),
-                'posts_per_page' => 1,
-                'fields' => 'ids',
-                'meta_query' => array(
-                    array(
-                        'key' => MEEPLE_MANAGER_META_INVENTORY_NUMBER,
-                        'value' => $inventory_number,
-                        'compare' => '=',
-                    ),
-                ),
-            )
-        );
-
-        return !empty($matches);
     }
 
     private function redirect_import_error($error) {
