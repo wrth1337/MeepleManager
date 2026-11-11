@@ -362,7 +362,7 @@ class Meeple_Manager_Shortcodes {
         $output .= '</div></div>';
         $output .= '<table class="meeple-manager-table" data-meeple-manager-game-table data-sort-column="inventory" data-sort-direction="asc">';
         $output .= '<thead><tr>';
-        $output .= '<th scope="col" data-sort-header="inventory" aria-sort="ascending"><button type="button" class="meeple-manager-sort-button meeple-manager-sort-button--header" data-sort-button="inventory" aria-label="Nach Inventarnummer absteigend sortieren"><span class="meeple-manager-sort-label">Inventarnummer</span><span class="meeple-manager-sort-indicator" aria-hidden="true">↑</span></button></th>';
+        $output .= '<th scope="col" data-sort-header="inventory" aria-sort="ascending"><button type="button" class="meeple-manager-sort-button meeple-manager-sort-button--header" data-sort-button="inventory" aria-label="Nach Inventarnummer absteigend sortieren"><span class="meeple-manager-sort-label">Inventarnummern</span><span class="meeple-manager-sort-indicator" aria-hidden="true">↑</span></button></th>';
         $output .= '<th scope="col" data-sort-header="title" aria-sort="none"><button type="button" class="meeple-manager-sort-button meeple-manager-sort-button--header" data-sort-button="title" aria-label="Nach Titel aufsteigend sortieren"><span class="meeple-manager-sort-label">Titel</span><span class="meeple-manager-sort-indicator" aria-hidden="true">↕</span></button></th>';
         $output .= '<th scope="col">Kategorie</th><th scope="col">Zustand</th><th scope="col">Verfügbarkeit</th><th scope="col">Voraussichtliche Rückgabe</th></tr></thead><tbody>';
         $requestable_games = array();
@@ -373,6 +373,7 @@ class Meeple_Manager_Shortcodes {
             $category_key = get_post_meta($game_id, MEEPLE_MANAGER_META_GAME_CATEGORY, true);
             $category = isset($categories[$category_key]) ? $categories[$category_key] : array('short_label' => 'Nicht festgelegt');
             $inventory_number = get_post_meta($game_id, MEEPLE_MANAGER_META_INVENTORY_NUMBER, true);
+            $inventory_numbers = Meeple_Manager_Inventory_Numbers::format($game_id);
             $condition = get_post_meta($game_id, MEEPLE_MANAGER_META_CONDITION, true);
             $loan = isset($active_by_game[$game_id]) ? $active_by_game[$game_id] : null;
             $due_date = $loan ? $loan['due_date'] : '';
@@ -392,7 +393,7 @@ class Meeple_Manager_Shortcodes {
             }
 
             $output .= '<tr data-game-title="' . esc_attr($game->post_title) . '" data-inventory-number="' . esc_attr($inventory_number) . '">';
-            $output .= '<td data-label="Inventarnummer">' . esc_html($inventory_number) . '</td>';
+            $output .= '<td data-label="Inventarnummern">' . esc_html($inventory_numbers) . '</td>';
             $output .= '<td data-label="Titel">' . esc_html($game->post_title) . '</td>';
             $output .= '<td data-label="Kategorie"><span class="meeple-manager-category meeple-manager-category--' . esc_attr($category_key) . '">' . esc_html($category['short_label']) . '</span></td>';
             $output .= '<td data-label="Zustand">' . ($condition !== '' ? nl2br(esc_html($condition)) : '–') . '</td>';
@@ -427,7 +428,7 @@ class Meeple_Manager_Shortcodes {
                     <select id="meeple-request-game" name="meeple_game_id" required>
                         <option value="">Bitte auswählen</option>
                         <?php foreach ($games as $game) : ?>
-                            <option value="<?php echo esc_attr($game->ID); ?>"><?php echo esc_html($game->post_title . ' (' . get_post_meta($game->ID, MEEPLE_MANAGER_META_INVENTORY_NUMBER, true) . ')'); ?></option>
+                            <option value="<?php echo esc_attr($game->ID); ?>"><?php echo esc_html($game->post_title . ' (' . Meeple_Manager_Inventory_Numbers::format($game->ID) . ')'); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </p>

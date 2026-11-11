@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) {
 class Meeple_Manager_Inventory_CSV {
     public static function get_columns() {
         return array(
-            'inventory_number' => array('Inventarnummer', 'inventorynumber', 'nummer', 'nr'),
+            'inventory_number' => array('Inventarnummer', 'inventarnummern', 'inventory_numbers', 'inventorynumber', 'nummer', 'nr'),
             'title' => array('Titel', 'name', 'spiel'),
             'category' => array('Ausleihkategorie', 'kategorie', 'lending_category'),
             'condition' => array('Zustand'),
@@ -21,6 +21,7 @@ class Meeple_Manager_Inventory_CSV {
             'image_position_x' => array('Bildposition X'),
             'image_position_y' => array('Bildposition Y'),
             'status' => array('Status', 'post_status'),
+            'additional_inventory_numbers' => array('Weitere Inventarnummern', 'extra_inventory_numbers'),
         );
     }
 
@@ -66,6 +67,7 @@ class Meeple_Manager_Inventory_CSV {
             return new WP_Error('categories', 'Die Spielkategorien konnten nicht für den Export aufbereitet werden.');
         }
         $thumbnail_id = get_post_thumbnail_id($game->ID);
+        $inventory_numbers = Meeple_Manager_Inventory_Numbers::get($game->ID);
 
         $values = array(
             'inventory_number' => get_post_meta($game->ID, MEEPLE_MANAGER_META_INVENTORY_NUMBER, true),
@@ -76,6 +78,7 @@ class Meeple_Manager_Inventory_CSV {
             'game_categories' => $encoded_paths,
             'image_url' => $thumbnail_id ? (wp_get_attachment_url($thumbnail_id) ?: '') : '',
             'status' => $game->post_status,
+            'additional_inventory_numbers' => implode("\n", array_slice($inventory_numbers, 1)),
         );
 
         foreach ($this->numeric_meta_keys() as $key => $meta_key) {
@@ -96,18 +99,21 @@ class Meeple_Manager_Inventory_CSV {
             $values[$key] = isset($columns[$key], $row[$columns[$key]]) ? trim((string) $row[$columns[$key]]) : '';
         }
 
-        $number = sanitize_text_field($values['inventory_number']);
+        $primary_numbers = Meeple_Manager_Inventory_Numbers::from_text($values['inventory_number']);
+        $numbers = Meeple_Manager_Inventory_Numbers::normalize(array_merge(
+            $primary_numbers,
+            Meeple_Manager_Inventory_Numbers::from_text($values['additional_inventory_numbers'])
+        ));
         $title = sanitize_text_field($values['title']);
-        if ($number === '' || $title === '') {
+        if (empty($primary_numbers) || $title === '') {
             return new WP_Error('required', 'Inventarnummer oder Titel fehlt.');
         }
 
-        if ($this->inventory_number_exists($number)) {
+        if (Meeple_Manager_Inventory_Numbers::has_conflict($numbers)) {
             return array('status' => 'duplicate');
         }
 
         $meta = array(
-            MEEPLE_MANAGER_META_INVENTORY_NUMBER => $number,
             MEEPLE_MANAGER_META_GAME_CATEGORY => $this->normalize_category($values['category']),
             MEEPLE_MANAGER_META_CONDITION => sanitize_textarea_field($values['condition']),
         );
@@ -162,6 +168,12 @@ class Meeple_Manager_Inventory_CSV {
         if (is_wp_error($assigned)) {
             wp_delete_post($game_id, true);
             return $assigned;
+        }
+
+        $inventory_result = Meeple_Manager_Inventory_Numbers::save($game_id, $numbers);
+        if (is_wp_error($inventory_result)) {
+            wp_delete_post($game_id, true);
+            return $inventory_result;
         }
 
         foreach ($meta as $meta_key => $value) {
@@ -299,15 +311,5 @@ class Meeple_Manager_Inventory_CSV {
             'red' => 'red', 'rot' => 'red', 'rot_nicht_ausleihbar' => 'red', 'red_nicht_ausleihbar' => 'red',
         );
         return isset($map[$value]) ? $map[$value] : 'green';
-    }
-
-    private function inventory_number_exists($number) {
-        return !empty(get_posts(array(
-            'post_type' => MEEPLE_MANAGER_GAME_POST_TYPE,
-            'post_status' => array('publish', 'draft', 'pending', 'private'),
-            'posts_per_page' => 1,
-            'fields' => 'ids',
-            'meta_query' => array(array('key' => MEEPLE_MANAGER_META_INVENTORY_NUMBER, 'value' => $number, 'compare' => '=')),
-        )));
     }
 }

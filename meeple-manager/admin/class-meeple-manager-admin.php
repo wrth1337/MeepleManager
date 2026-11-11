@@ -167,6 +167,9 @@ class Meeple_Manager_Admin {
                         ?>
                         <section class="meeple-manager-admin-card">
                             <h2><?php echo esc_html($game_title); ?> <span class="meeple-manager-admin-muted">(<?php echo esc_html($category); ?>)</span></h2>
+                            <?php if ($game instanceof WP_Post) : ?>
+                                <p><strong>Inventarnummern:</strong> <?php echo esc_html(Meeple_Manager_Inventory_Numbers::format($game_id)); ?></p>
+                            <?php endif; ?>
                             <p><strong>Mitglied:</strong> <?php echo esc_html(trim($first_name . ' ' . $last_name)); ?> · <a href="mailto:<?php echo esc_attr($email); ?>"><?php echo esc_html($email); ?></a></p>
                             <p><strong>Eingegangen:</strong> <?php echo esc_html(get_date_from_gmt($request->post_date_gmt, 'd.m.Y H:i')); ?></p>
                             <?php if ($message !== '') : ?>
@@ -262,7 +265,7 @@ class Meeple_Manager_Admin {
         ?>
         <div class="wrap meeple-manager-admin">
             <h1>CSV-Import und -Export</h1>
-            <p>Die Datei enthält die Inventardaten einschließlich Spieleranzahl, Spieldauer, Spielkategorien, Favoriten, Bild-URL, Bildposition und Veröffentlichungsstatus. Ausleihvorgänge und Mitgliederdaten werden nicht importiert oder exportiert. Beim Import werden Inventarnummern, die bereits vorhanden sind, übersprungen.</p>
+            <p>Die Datei enthält die Inventardaten einschließlich aller Inventarnummern, Spieleranzahl, Spieldauer, Spielkategorien, Favoriten, Bild-URL, Bildposition und Veröffentlichungsstatus. Ausleihvorgänge und Mitgliederdaten werden nicht importiert oder exportiert. Ist eine Inventarnummer bereits einem anderen Spiel zugeordnet, wird der gesamte Datensatz übersprungen.</p>
             <section class="meeple-manager-admin-card">
                 <h2>Inventar exportieren</h2>
                 <p><a class="button button-primary" href="<?php echo esc_url($export_url); ?>">CSV-Datei herunterladen</a></p>
@@ -271,6 +274,7 @@ class Meeple_Manager_Admin {
                 <h2>Inventar importieren</h2>
                 <p>Spalten: <code><?php echo esc_html(implode(', ', Meeple_Manager_Inventory_CSV::get_headers())); ?></code>.</p>
                 <p>Nur <strong>Inventarnummer und Titel</strong> sind Pflicht. Alte CSV-Dateien und englische Spaltennamen werden weiterhin unterstützt. Die bisherige Spalte <code>Kategorie</code> entspricht <code>Ausleihkategorie</code> (Grün/Gelb/Rot); ohne Angabe gilt Grün.</p>
+                <p>Die erste Nummer steht in <code>Inventarnummer</code>. Für ein Spiel mit mehreren Nummern enthält <code>Weitere Inventarnummern</code> jede weitere Nummer in einer neuen Zeile innerhalb derselben CSV-Zelle. Es bleibt eine CSV-Zeile pro Spiel; getrennte Datensätze werden nicht automatisch zusammengeführt.</p>
                 <p>Spieleranzahl und Spieldauer haben jeweils einen Minimal- und Maximalwert (Dauer in Minuten). Trage positive ganze Zahlen ein oder lasse unbekannte Werte leer. Bildpositionen sind ganze Zahlen von 0 bis 100; leer bedeutet Design-Standard. Ungültige Werte und Bereiche werden gemeldet und die betroffenen Datensätze übersprungen.</p>
                 <p>Mehrere <strong>Spielkategorien</strong> kannst du mit <code>|</code> trennen, zum Beispiel <code>Kooperativ | Strategie</code>. Der Export verwendet eine JSON-Liste von Kategoriepfaden, damit auch Unterkategorien und Sonderzeichen erhalten bleiben, zum Beispiel <code>[["Brettspiele","Strategie"],["Kooperativ"]]</code>. Fehlende Kategorien werden beim Import angelegt.</p>
                 <p><strong>Bilder:</strong> Die CSV enthält Bild-URLs, keine Bilddateien. Beim Import werden vorhandene Bilder aus der Mediathek über ihre URL zugeordnet. Nicht gefundene Bilder werden gemeldet; du kannst sie anschließend als Beitragsbild festlegen.</p>
@@ -292,6 +296,7 @@ class Meeple_Manager_Admin {
         ?>
         <div class="wrap meeple-manager-admin">
             <h1>MeepleManager-Einstellungen</h1>
+            <p>Der E-Mail-Platzhalter <code>{inventory_number}</code> enthält alle Inventarnummern des Spiels, durch Kommas getrennt.</p>
             <form method="post" action="options.php">
                 <?php settings_fields('meeple_manager_settings_group'); ?>
                 <table class="form-table" role="presentation">
@@ -515,7 +520,7 @@ class Meeple_Manager_Admin {
 
             if (is_array($counts)) {
                 $message = sprintf(
-                    'Import abgeschlossen: %1$d Spiele angelegt, %2$d bestehende Inventarnummern übersprungen, %3$d Datensätze nicht importiert.',
+                    'Import abgeschlossen: %1$d Spiele angelegt, %2$d Datensätze mit bereits vergebenen Inventarnummern übersprungen, %3$d Datensätze nicht importiert.',
                     (int) $counts['created'],
                     (int) $counts['duplicates'],
                     (int) $counts['invalid']
@@ -550,7 +555,7 @@ class Meeple_Manager_Admin {
         $game_id = (int) get_post_meta($loan->ID, MEEPLE_MANAGER_META_GAME_ID, true);
         $game = get_post($game_id);
         $title = $game instanceof WP_Post ? $game->post_title : 'Spiel nicht gefunden';
-        $inventory_number = $game instanceof WP_Post ? get_post_meta($game_id, MEEPLE_MANAGER_META_INVENTORY_NUMBER, true) : '';
+        $inventory_number = $game instanceof WP_Post ? Meeple_Manager_Inventory_Numbers::format($game_id) : '';
         $first_name = get_post_meta($loan->ID, MEEPLE_MANAGER_META_FIRST_NAME, true);
         $last_name = get_post_meta($loan->ID, MEEPLE_MANAGER_META_LAST_NAME, true);
         $email = get_post_meta($loan->ID, MEEPLE_MANAGER_META_EMAIL, true);

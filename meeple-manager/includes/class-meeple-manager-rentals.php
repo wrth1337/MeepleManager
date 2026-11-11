@@ -74,7 +74,7 @@ class Meeple_Manager_Rentals {
         update_post_meta($request_id, MEEPLE_MANAGER_META_EMAIL, wp_slash($email));
         update_post_meta($request_id, MEEPLE_MANAGER_META_REQUEST_MESSAGE, wp_slash($message));
 
-        $inventory_number = get_post_meta($game_id, MEEPLE_MANAGER_META_INVENTORY_NUMBER, true);
+        $inventory_number = Meeple_Manager_Inventory_Numbers::format($game_id);
         $settings = Meeple_Manager_Admin::get_settings();
         $placeholders = array(
             '{first_name}' => $first_name,
@@ -92,7 +92,7 @@ class Meeple_Manager_Rentals {
 
         $admin_message = "Neue Ausleihanfrage\n\n";
         $admin_message .= 'Spiel: ' . $game->post_title . "\n";
-        $admin_message .= 'Inventarnummer: ' . $inventory_number . "\n";
+        $admin_message .= 'Inventarnummern: ' . $inventory_number . "\n";
         $admin_message .= 'Mitglied: ' . $first_name . ' ' . $last_name . "\n";
         $admin_message .= 'E-Mail: ' . $email . "\n";
 
@@ -173,7 +173,7 @@ class Meeple_Manager_Rentals {
                     '{first_name}' => $first_name,
                     '{last_name}' => $last_name,
                     '{game_title}' => $game->post_title,
-                    '{inventory_number}' => get_post_meta($game_id, MEEPLE_MANAGER_META_INVENTORY_NUMBER, true),
+                    '{inventory_number}' => Meeple_Manager_Inventory_Numbers::format($game_id),
                     '{checkout_date}' => $checkout_date,
                     '{due_date}' => $due_date,
                 )
@@ -193,7 +193,7 @@ class Meeple_Manager_Rentals {
                     '{first_name}' => $first_name,
                     '{last_name}' => $last_name,
                     '{game_title}' => $game instanceof WP_Post ? $game->post_title : '',
-                    '{inventory_number}' => $game instanceof WP_Post ? get_post_meta($game_id, MEEPLE_MANAGER_META_INVENTORY_NUMBER, true) : '',
+                    '{inventory_number}' => $game instanceof WP_Post ? Meeple_Manager_Inventory_Numbers::format($game_id) : '',
                 )
             );
 

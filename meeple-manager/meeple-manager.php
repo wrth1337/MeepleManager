@@ -21,6 +21,7 @@ define('MEEPLE_MANAGER_GAME_POST_TYPE', 'meeple_game');
 define('MEEPLE_MANAGER_GAME_INFO_TAXONOMY', 'meeple_game_category');
 define('MEEPLE_MANAGER_TRANSACTION_POST_TYPE', 'meeple_transaction');
 define('MEEPLE_MANAGER_META_INVENTORY_NUMBER', '_meeple_inventory_number');
+define('MEEPLE_MANAGER_META_EXTRA_INVENTORY_NUMBER', '_meeple_extra_inventory_number');
 define('MEEPLE_MANAGER_META_GAME_CATEGORY', '_meeple_game_category');
 define('MEEPLE_MANAGER_META_PLAYERS_MIN', '_meeple_players_min');
 define('MEEPLE_MANAGER_META_PLAYERS_MAX', '_meeple_players_max');
@@ -75,6 +76,7 @@ require_once MEEPLE_MANAGER_DIR . 'admin/class-event-blocks-event-meta-boxes.php
 require_once MEEPLE_MANAGER_DIR . 'admin/class-event-blocks-event-category-taxonomy.php';
 require_once MEEPLE_MANAGER_DIR . 'admin/class-event-blocks-admin-ui.php';
 require_once MEEPLE_MANAGER_DIR . 'includes/class-meeple-manager-content-types.php';
+require_once MEEPLE_MANAGER_DIR . 'includes/class-meeple-manager-inventory-numbers.php';
 require_once MEEPLE_MANAGER_DIR . 'admin/class-meeple-manager-game-meta-box.php';
 require_once MEEPLE_MANAGER_DIR . 'includes/class-meeple-manager-rentals.php';
 require_once MEEPLE_MANAGER_DIR . 'includes/class-meeple-manager-shortcodes.php';

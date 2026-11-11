@@ -19,7 +19,7 @@ class Meeple_Manager_Game_Meta_Box {
     public function render($post) {
         wp_nonce_field('meeple_manager_save_game', 'meeple_manager_game_nonce');
 
-        $inventory_number = get_post_meta($post->ID, MEEPLE_MANAGER_META_INVENTORY_NUMBER, true);
+        $inventory_numbers = Meeple_Manager_Inventory_Numbers::get($post->ID);
         $category = get_post_meta($post->ID, MEEPLE_MANAGER_META_GAME_CATEGORY, true);
         $condition = get_post_meta($post->ID, MEEPLE_MANAGER_META_CONDITION, true);
         $players_min = get_post_meta($post->ID, MEEPLE_MANAGER_META_PLAYERS_MIN, true);
@@ -37,10 +37,10 @@ class Meeple_Manager_Game_Meta_Box {
         <table class="form-table" role="presentation">
             <tbody>
                 <tr>
-                    <th scope="row"><label for="meeple-manager-inventory-number">Inventarnummer</label></th>
+                    <th scope="row"><label for="meeple-manager-inventory-number">Inventarnummern</label></th>
                     <td>
-                        <input id="meeple-manager-inventory-number" name="meeple_manager_inventory_number" type="text" value="<?php echo esc_attr($inventory_number); ?>" class="regular-text" required>
-                        <p class="description">Die Inventarnummer muss eindeutig sein, zum Beispiel SP-001.</p>
+                        <textarea id="meeple-manager-inventory-number" name="meeple_manager_inventory_number" rows="4" class="regular-text" aria-describedby="meeple-manager-inventory-description" required><?php echo esc_textarea(implode("\n", $inventory_numbers)); ?></textarea>
+                        <p id="meeple-manager-inventory-description" class="description">Eine Inventarnummer pro Zeile, zum Beispiel SP-001. Für Hauptspiel und Erweiterungen kannst du mehrere Nummern eintragen; sie werden gemeinsam als ein Spiel ausgeliehen. Die erste Nummer bestimmt die Sortierung. Jede Nummer darf nur einem Spiel zugeordnet sein.</p>
                     </td>
                 </tr>
                 <tr>
@@ -129,18 +129,12 @@ class Meeple_Manager_Game_Meta_Box {
             return;
         }
 
-        $inventory_number = isset($_POST['meeple_manager_inventory_number'])
-            ? sanitize_text_field(wp_unslash($_POST['meeple_manager_inventory_number']))
+        $inventory_text = isset($_POST['meeple_manager_inventory_number']) && is_scalar($_POST['meeple_manager_inventory_number'])
+            ? (string) wp_unslash($_POST['meeple_manager_inventory_number'])
             : '';
-        $inventory_number = trim($inventory_number);
-
-        if ($inventory_number === '') {
-            delete_post_meta($post_id, MEEPLE_MANAGER_META_INVENTORY_NUMBER);
-            set_transient('meeple_manager_game_notice_' . get_current_user_id(), 'missing_number', MINUTE_IN_SECONDS);
-        } elseif ($this->inventory_number_exists($inventory_number, $post_id)) {
-            set_transient('meeple_manager_game_notice_' . get_current_user_id(), 'duplicate_number', MINUTE_IN_SECONDS);
-        } else {
-            update_post_meta($post_id, MEEPLE_MANAGER_META_INVENTORY_NUMBER, wp_slash($inventory_number));
+        $inventory_result = Meeple_Manager_Inventory_Numbers::save($post_id, Meeple_Manager_Inventory_Numbers::from_text($inventory_text));
+        if (is_wp_error($inventory_result)) {
+            set_transient('meeple_manager_game_notice_' . get_current_user_id(), $inventory_result->get_error_code(), MINUTE_IN_SECONDS);
         }
 
         $categories = Meeple_Manager_Content_Types::get_categories();
@@ -199,33 +193,12 @@ class Meeple_Manager_Game_Meta_Box {
         delete_transient($key);
 
         if ($notice === 'duplicate_number') {
-            $message = 'Diese Inventarnummer wird bereits für ein anderes Spiel verwendet. Die bisherige Inventarnummer dieses Eintrags blieb unverändert.';
+            $message = 'Mindestens eine Inventarnummer ist bereits einem anderen Spiel zugeordnet. Die bisherigen Inventarnummern bleiben unverändert.';
         } else {
-            $message = 'Bitte trage eine Inventarnummer ein. Ohne Inventarnummer erscheint das Spiel nicht in den Katalogen.';
+            $message = 'Bitte trage mindestens eine Inventarnummer ein. Vorhandene Inventarnummern bleiben unverändert; neue Spiele ohne Inventarnummer erscheinen nicht in den Katalogen.';
         }
 
         echo '<div class="notice notice-error"><p>' . esc_html($message) . '</p></div>';
-    }
-
-    private function inventory_number_exists($inventory_number, $exclude_post_id = 0) {
-        $matches = get_posts(
-            array(
-                'post_type' => MEEPLE_MANAGER_GAME_POST_TYPE,
-                'post_status' => array('publish', 'draft', 'pending', 'private'),
-                'posts_per_page' => 1,
-                'fields' => 'ids',
-                'post__not_in' => $exclude_post_id > 0 ? array((int) $exclude_post_id) : array(),
-                'meta_query' => array(
-                    array(
-                        'key' => MEEPLE_MANAGER_META_INVENTORY_NUMBER,
-                        'value' => $inventory_number,
-                        'compare' => '=',
-                    ),
-                ),
-            )
-        );
-
-        return !empty($matches);
     }
 
     private function save_image_position($post_id, $meta_key, $field_name) {
