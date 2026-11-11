@@ -5,7 +5,7 @@ MeepleManager is a WordPress plugin for club events and a board-game lending inv
 ## Features
 
 - Existing event management, categories, card styling, and frontend labels
-- Game inventory with unique inventory numbers, fixed lending categories, condition notes, featured images with adjustable fitting and position, and favorites
+- Game inventory with one or more unique inventory numbers per game, fixed lending categories, condition notes, featured images with adjustable fitting and position, and favorites
 - Public game catalog with card and table views, title search, game-category filters, and sorting by title, player count, or play time
 - Game cards that flip to show player count, play time, and assigned game categories
 - Configurable placeholder image and opacity, image fit and position, card frame thickness, favorite flame colors, and colors for catalog cards and the lending area
@@ -74,6 +74,10 @@ Open **MeepleManager** in the WordPress admin to manage games and events. Users 
 - Sort the catalog by title, player count, or play time in ascending or descending order
 - Import and export the inventory as CSV
 
+In the game editor, enter **Inventarnummern** with one number per line. A base game and its expansions can share one game entry, for example `SP-001`, `SP-002`, and `SP-003` on three lines. They appear as one game and are requested, checked out, and returned together. The first number determines inventory sorting. Existing games with a single number continue to work without migration.
+
+Every number is checked against both the primary and additional numbers of other games. Repeated numbers within the same entry and blank lines are removed. If a number belongs to another game, the previous list is kept and an error is shown. All numbers appear in the lending list, request selection, admin requests/loans, and emails. The existing `{inventory_number}` email placeholder expands to the complete comma-separated list.
+
 To add a game image, set its **Beitragsbild** in the game editor. By default, the full image fits inside the square card. Under **Spiele-Design**, you can instead fill the card and set a global focal position; each game can override its horizontal or vertical position in the editor.
 
 Both catalog views use uncropped source images, with fitting controlled by **Spiele-Design**. Disabling a category hides every game assigned to it, even if another category is still enabled. Disabling a parent category also hides games in its subcategories; games without categories remain visible. Player-count and play-time sorting uses the minimum value, or the maximum when only that value is known. Games with neither value remain at the end in both sort directions.
@@ -87,14 +91,14 @@ Games with missing or invalid lending categories are shown as unavailable until 
 CSV export uses these headers:
 
 ```text
-Inventarnummer,Titel,Ausleihkategorie,Zustand,Favorit,Spieleranzahl min,Spieleranzahl max,Spieldauer min,Spieldauer max,Spielkategorien,Bild-URL,Bildposition X,Bildposition Y,Status
+Inventarnummer,Titel,Ausleihkategorie,Zustand,Favorit,Spieleranzahl min,Spieleranzahl max,Spieldauer min,Spieldauer max,Spielkategorien,Bild-URL,Bildposition X,Bildposition Y,Status,Weitere Inventarnummern
 ```
 
 Only inventory number and title are required. Legacy CSV files remain supported, including the old `Kategorie` header for the green/yellow/red lending category. The importer accepts comma- or semicolon-separated UTF-8 files, with or without a byte-order mark (BOM).
 
 | German header | English alias | Value |
 | --- | --- | --- |
-| Inventarnummer | `inventory_number` | Unique inventory number; existing numbers are skipped |
+| Inventarnummer | `inventory_number` | First inventory number, also used for sorting |
 | Titel | `title` | Game title |
 | Ausleihkategorie | `category`, `lending_category` | Grün/Green, Gelb/Yellow, Rot/Red; defaults to green |
 | Zustand | `condition` | Condition notes, including line breaks |
@@ -105,10 +109,13 @@ Only inventory number and title are required. Legacy CSV files remain supported,
 | Bild-URL | `image_url` | Featured-image URL; matched against the destination site's media library |
 | Bildposition X / Y | `image_position_x`, `image_position_y` | Whole numbers from 0 to 100; empty uses the global design default |
 | Status | `status`, `post_status` | `publish`, `draft`, `pending`, or `private`; defaults to `publish` |
+| Weitere Inventarnummern | `additional_inventory_numbers`, `extra_inventory_numbers` | Optional additional numbers, one per line within the same CSV cell |
+
+Each CSV record represents one game, even when it has several inventory numbers. Extra numbers are exported as line breaks inside a quoted CSV cell; spreadsheet applications preserve these cell contents. The importer also accepts several lines in the main number column, with `Inventarnummern` or `inventory_numbers` as alternative headers. Old files without extra numbers remain supported. Separate inventory records are not automatically combined by title.
 
 The exporter writes assigned game categories as JSON paths, for example `[["Brettspiele","Strategie"],["Kooperativ"]]`. This preserves parent categories and names containing commas, quotes, or `|`. Each path assigns its last category; ancestors are created or reused without being automatically assigned to the game. For a manually prepared CSV, `Kooperativ | Strategie` or `["Kooperativ","Strategie"]` creates or reuses top-level categories. Keep the exported JSON value when editing in a spreadsheet; normal CSV quoting is handled by the spreadsheet application.
 
-Invalid numbers, reversed ranges, malformed category lists, and unknown publication statuses cause the affected record to be skipped with an error message. Empty optional values stay empty. Duplicate inventory numbers are skipped without modifying the existing games.
+Invalid numbers, reversed ranges, malformed category lists, and unknown publication statuses cause the affected record to be skipped with an error message. Empty optional values stay empty. If any inventory number is already assigned, the entire incoming game record is skipped without modifying existing games.
 
 Images are **references, not embedded files**. On import, matching image attachments are reused; files are not downloaded. A missing image is reported, while the rest of the game is imported. For another WordPress installation, transfer the media separately and adapt the image URLs before importing, or assign featured images afterwards.
 
