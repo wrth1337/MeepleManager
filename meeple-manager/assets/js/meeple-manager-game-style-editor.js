@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function renderPlaceholderTarget(target, url) {
+        target.classList.add('meeple-manager-game-card__image-wrap--placeholder');
         while (target.firstChild) {
             target.removeChild(target.firstChild);
         }
@@ -106,8 +107,8 @@ document.addEventListener('DOMContentLoaded', function () {
             mediaFrame.on('select', function () {
                 var attachment = mediaFrame.state().get('selection').first().toJSON();
                 var sizes = attachment.sizes || {};
-                var squareSize = sizes['meeple-manager-game-card'] || sizes.medium_large || sizes.medium;
-                setPlaceholderImage(attachment.id, squareSize ? squareSize.url : attachment.url);
+                var previewSize = sizes.large || sizes.medium_large || sizes.medium;
+                setPlaceholderImage(attachment.id, previewSize ? previewSize.url : attachment.url);
             });
 
             mediaFrame.open();

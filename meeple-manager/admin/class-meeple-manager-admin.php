@@ -288,10 +288,6 @@ class Meeple_Manager_Admin {
                             <td><input id="meeple-manager-warden-email" class="regular-text" type="email" name="<?php echo esc_attr(MEEPLE_MANAGER_OPTION_SETTINGS); ?>[warden_email]" value="<?php echo esc_attr($settings['warden_email']); ?>" required><p class="description">Diese Adresse erhält eine Nachricht, wenn eine Ausleihanfrage eingeht.</p></td>
                         </tr>
                         <tr>
-                            <th scope="row"><label for="meeple-manager-lending-url">URL des Verleihbereichs</label></th>
-                            <td><input id="meeple-manager-lending-url" class="regular-text" type="url" name="<?php echo esc_attr(MEEPLE_MANAGER_OPTION_SETTINGS); ?>[lending_page_url]" value="<?php echo esc_attr($settings['lending_page_url']); ?>"><p class="description">Ziel des Shortcodes <code>[meeple-lending-button]</code>. Der Button funktioniert auch mit einem <code>url</code>-Attribut.</p></td>
-                        </tr>
-                        <tr>
                             <th scope="row"><label for="meeple-manager-receipt-template">Eingangsbestätigung</label></th>
                             <td><textarea id="meeple-manager-receipt-template" class="large-text" rows="5" name="<?php echo esc_attr(MEEPLE_MANAGER_OPTION_SETTINGS); ?>[request_receipt_template]"><?php echo esc_textarea($settings['request_receipt_template']); ?></textarea><p class="description">Platzhalter: <code>{first_name}</code>, <code>{last_name}</code>, <code>{game_title}</code>, <code>{inventory_number}</code>.</p></td>
                         </tr>
@@ -314,7 +310,6 @@ class Meeple_Manager_Admin {
     public static function get_settings() {
         $defaults = array(
             'warden_email' => sanitize_email(get_option('admin_email')),
-            'lending_page_url' => '',
             'request_receipt_template' => "Hallo {first_name},\n\nwir haben deine Ausleihanfrage für „{game_title}“ ({inventory_number}) erhalten. Der Spielewart meldet sich bei dir.\n\nViele Grüße",
             'approval_template' => "Hallo {first_name},\n\ndeine Ausleihe für „{game_title}“ ({inventory_number}) wurde bestätigt.\nAusleihdatum: {checkout_date}\nGeplante Rückgabe: {due_date}\n\nViele Grüße",
             'rejection_template' => "Hallo {first_name},\n\nleider können wir deine Anfrage für „{game_title}“ ({inventory_number}) diesmal nicht bestätigen.\n\nViele Grüße",
@@ -340,7 +335,6 @@ class Meeple_Manager_Admin {
             : $defaults['warden_email'];
         $settings = array(
             'warden_email' => is_email($email) ? $email : $defaults['warden_email'],
-            'lending_page_url' => isset($input['lending_page_url']) && is_scalar($input['lending_page_url']) ? esc_url_raw((string) $input['lending_page_url']) : $defaults['lending_page_url'],
             'request_receipt_template' => isset($input['request_receipt_template']) && is_scalar($input['request_receipt_template']) ? sanitize_textarea_field((string) $input['request_receipt_template']) : $defaults['request_receipt_template'],
             'approval_template' => isset($input['approval_template']) && is_scalar($input['approval_template']) ? sanitize_textarea_field((string) $input['approval_template']) : $defaults['approval_template'],
             'rejection_template' => isset($input['rejection_template']) && is_scalar($input['rejection_template']) ? sanitize_textarea_field((string) $input['rejection_template']) : $defaults['rejection_template'],

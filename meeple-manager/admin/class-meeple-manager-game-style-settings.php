@@ -86,7 +86,7 @@ class Meeple_Manager_Game_Style_Settings {
         $placeholder_image = $settings['placeholder_image_id']
             ? wp_get_attachment_image(
                 $settings['placeholder_image_id'],
-                'meeple-manager-game-card',
+                'large',
                 false,
                 array('class' => 'meeple-manager-game-card__image meeple-manager-game-card__image--placeholder', 'alt' => '')
             )
@@ -123,11 +123,11 @@ class Meeple_Manager_Game_Style_Settings {
                         <h3>Öffentlicher Katalog</h3>
                         <ul class="meeple-manager-catalog">
                             <li class="meeple-manager-catalog__item">
-                                <div class="meeple-manager-game-card__image-wrap" data-placeholder-image-target><?php echo $placeholder_image; ?><?php echo Meeple_Manager_Shortcodes::render_favorite_badge(); ?></div>
+                                <div class="meeple-manager-game-card__image-wrap meeple-manager-game-card__image-wrap--placeholder" data-placeholder-image-target><?php echo $placeholder_image; ?><?php echo Meeple_Manager_Shortcodes::render_favorite_badge(); ?></div>
                                 <h2 class="meeple-manager-catalog__title">Catan – Das Duell</h2>
                             </li>
                             <li class="meeple-manager-catalog__item">
-                                <div class="meeple-manager-game-card__image-wrap" data-placeholder-image-target><?php echo $placeholder_image; ?></div>
+                                <div class="meeple-manager-game-card__image-wrap meeple-manager-game-card__image-wrap--placeholder" data-placeholder-image-target><?php echo $placeholder_image; ?></div>
                                 <h2 class="meeple-manager-catalog__title">Die Crew</h2>
                             </li>
                         </ul>
@@ -144,7 +144,7 @@ class Meeple_Manager_Game_Style_Settings {
                                 </table>
                             </div>
                             <section class="meeple-manager-request">
-                                <h3>Ausleihanfrage stellen</h3>
+                                <h3 class="meeple-manager-request__title">Ausleihanfrage stellen</h3>
                                 <p><input type="text" placeholder="Vorname"></p>
                                 <button type="button" class="meeple-manager-button">Anfrage senden</button>
                             </section>
@@ -182,6 +182,17 @@ class Meeple_Manager_Game_Style_Settings {
                 'type' => 'color',
                 'default' => '#ffffff',
                 'css_variable' => '--meeple-manager-game-card-bg',
+            ),
+            'card_border_width' => array(
+                'section' => 'Spielekatalog',
+                'label' => 'Stärke des Kachelrahmens',
+                'type' => 'range',
+                'default' => 1,
+                'min' => 0,
+                'max' => 10,
+                'step' => 1,
+                'unit' => 'px',
+                'css_variable' => '--meeple-manager-game-card-border-width',
             ),
             'title_color' => array(
                 'section' => 'Spielekatalog',
@@ -241,6 +252,13 @@ class Meeple_Manager_Game_Style_Settings {
                 'type' => 'color',
                 'default' => '#f9fbf8',
                 'css_variable' => '--meeple-manager-game-request-bg',
+            ),
+            'request_heading_color' => array(
+                'section' => 'Verleihbereich',
+                'label' => 'Titelfarbe „Ausleihanfrage stellen“',
+                'type' => 'color',
+                'default' => '#1a281d',
+                'css_variable' => '--meeple-manager-game-request-heading-color',
             ),
             'button_background' => array(
                 'section' => 'Verleihbereich',
