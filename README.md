@@ -12,7 +12,7 @@ MeepleManager is a WordPress plugin for club events and a board-game lending inv
 - Configurable thickness for lending-table lines
 - Configurable border thickness for the lending-request box
 - Configurable background, text, and accent colors for request confirmations
-- Lending list with availability and planned return dates; page visibility is managed through WordPress
+- Lending list with availability and planned return dates
 - Searchable lending table sorted by inventory number by default, with sorting by inventory number or title and a compact, labeled mobile layout
 - Member requests that staff approve or reject in the WordPress admin
 - Edit each loan-approval email before sending it, including handover details
@@ -47,7 +47,7 @@ Create a WordPress page and add the following shortcode:
 
 The previous `[meeple-lending]` shortcode remains available as an alias.
 
-Manage access using the page's WordPress visibility settings, for example **Password protected**. MeepleManager does not require a page password, display its own password form, or check password cookies when rendering or submitting requests. The request form retains its page-specific nonce validation. The lending list never displays borrower names or email addresses.
+Website access control is configured separately from MeepleManager. The lending list never displays borrower names or email addresses.
 
 ## Admin
 
