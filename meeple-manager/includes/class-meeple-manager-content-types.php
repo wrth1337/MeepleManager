@@ -37,6 +37,34 @@ class Meeple_Manager_Content_Types {
             )
         );
 
+        register_taxonomy(
+            MEEPLE_MANAGER_GAME_INFO_TAXONOMY,
+            array(MEEPLE_MANAGER_GAME_POST_TYPE),
+            array(
+                'labels' => array(
+                    'name' => 'Spielkategorien',
+                    'singular_name' => 'Spielkategorie',
+                    'search_items' => 'Spielkategorien durchsuchen',
+                    'all_items' => 'Alle Spielkategorien',
+                    'parent_item' => 'Übergeordnete Spielkategorie',
+                    'parent_item_colon' => 'Übergeordnete Spielkategorie:',
+                    'edit_item' => 'Spielkategorie bearbeiten',
+                    'update_item' => 'Spielkategorie aktualisieren',
+                    'add_new_item' => 'Neue Spielkategorie hinzufügen',
+                    'new_item_name' => 'Name der neuen Spielkategorie',
+                    'menu_name' => 'Spielkategorien',
+                ),
+                'public' => false,
+                'publicly_queryable' => false,
+                'show_ui' => true,
+                'show_admin_column' => true,
+                'hierarchical' => true,
+                'show_in_rest' => false,
+                'query_var' => false,
+                'rewrite' => false,
+            )
+        );
+
         register_post_type(
             MEEPLE_MANAGER_TRANSACTION_POST_TYPE,
             array(

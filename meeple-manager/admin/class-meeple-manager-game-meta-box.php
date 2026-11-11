@@ -8,7 +8,7 @@ class Meeple_Manager_Game_Meta_Box {
     public function register() {
         add_meta_box(
             'meeple-manager-game-details',
-            'Inventar und Zustand',
+            'Inventar, Spielinfos und Zustand',
             array($this, 'render'),
             MEEPLE_MANAGER_GAME_POST_TYPE,
             'normal',
@@ -22,6 +22,10 @@ class Meeple_Manager_Game_Meta_Box {
         $inventory_number = get_post_meta($post->ID, MEEPLE_MANAGER_META_INVENTORY_NUMBER, true);
         $category = get_post_meta($post->ID, MEEPLE_MANAGER_META_GAME_CATEGORY, true);
         $condition = get_post_meta($post->ID, MEEPLE_MANAGER_META_CONDITION, true);
+        $players_min = get_post_meta($post->ID, MEEPLE_MANAGER_META_PLAYERS_MIN, true);
+        $players_max = get_post_meta($post->ID, MEEPLE_MANAGER_META_PLAYERS_MAX, true);
+        $duration_min = get_post_meta($post->ID, MEEPLE_MANAGER_META_DURATION_MIN, true);
+        $duration_max = get_post_meta($post->ID, MEEPLE_MANAGER_META_DURATION_MAX, true);
         $is_favorite = get_post_meta($post->ID, MEEPLE_MANAGER_META_FAVORITE, true) === '1';
         $image_position_x = get_post_meta($post->ID, MEEPLE_MANAGER_META_IMAGE_POSITION_X, true);
         $image_position_y = get_post_meta($post->ID, MEEPLE_MANAGER_META_IMAGE_POSITION_Y, true);
@@ -40,14 +44,34 @@ class Meeple_Manager_Game_Meta_Box {
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="meeple-manager-category">Kategorie</label></th>
+                    <th scope="row"><label for="meeple-manager-category">Ausleihkategorie</label></th>
                     <td>
                         <select id="meeple-manager-category" name="meeple_manager_category">
                             <?php foreach (Meeple_Manager_Content_Types::get_categories() as $value => $details) : ?>
                                 <option value="<?php echo esc_attr($value); ?>" <?php selected($category, $value); ?>><?php echo esc_html($details['label']); ?></option>
                             <?php endforeach; ?>
                         </select>
-                        <p class="description">Die Kategorie legt fest, ob das Exemplar ausgeliehen werden kann.</p>
+                        <p class="description">Legt fest, ob das Exemplar ausgeliehen werden kann. Spielkategorien pflegst du separat im Kasten „Spielkategorien“.</p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">Spieleranzahl</th>
+                    <td>
+                        <label for="meeple-manager-players-min">Von</label>
+                        <input id="meeple-manager-players-min" name="meeple_manager_players_min" type="number" min="1" step="1" value="<?php echo esc_attr($players_min); ?>" class="small-text">
+                        <label for="meeple-manager-players-max">bis</label>
+                        <input id="meeple-manager-players-max" name="meeple_manager_players_max" type="number" min="1" step="1" value="<?php echo esc_attr($players_max); ?>" class="small-text">
+                        <p class="description">Optional. Trage die kleinste und größte Spielerzahl ein.</p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">Spieldauer in Minuten</th>
+                    <td>
+                        <label for="meeple-manager-duration-min">Von</label>
+                        <input id="meeple-manager-duration-min" name="meeple_manager_duration_min" type="number" min="1" step="1" value="<?php echo esc_attr($duration_min); ?>" class="small-text">
+                        <label for="meeple-manager-duration-max">bis</label>
+                        <input id="meeple-manager-duration-max" name="meeple_manager_duration_max" type="number" min="1" step="1" value="<?php echo esc_attr($duration_max); ?>" class="small-text">
+                        <p class="description">Optional. Trage die kürzeste und längste übliche Spieldauer ein.</p>
                     </td>
                 </tr>
                 <tr>
@@ -148,6 +172,20 @@ class Meeple_Manager_Game_Meta_Box {
 
         $this->save_image_position($post_id, MEEPLE_MANAGER_META_IMAGE_POSITION_X, 'meeple_manager_image_position_x');
         $this->save_image_position($post_id, MEEPLE_MANAGER_META_IMAGE_POSITION_Y, 'meeple_manager_image_position_y');
+
+        $this->save_optional_positive_integer($post_id, MEEPLE_MANAGER_META_PLAYERS_MIN, 'meeple_manager_players_min');
+        $players_max = $this->save_optional_positive_integer($post_id, MEEPLE_MANAGER_META_PLAYERS_MAX, 'meeple_manager_players_max');
+        $players_min = (int) get_post_meta($post_id, MEEPLE_MANAGER_META_PLAYERS_MIN, true);
+        if ($players_min > 0 && $players_max > 0 && $players_max < $players_min) {
+            update_post_meta($post_id, MEEPLE_MANAGER_META_PLAYERS_MAX, $players_min);
+        }
+
+        $this->save_optional_positive_integer($post_id, MEEPLE_MANAGER_META_DURATION_MIN, 'meeple_manager_duration_min');
+        $duration_max = $this->save_optional_positive_integer($post_id, MEEPLE_MANAGER_META_DURATION_MAX, 'meeple_manager_duration_max');
+        $duration_min = (int) get_post_meta($post_id, MEEPLE_MANAGER_META_DURATION_MIN, true);
+        if ($duration_min > 0 && $duration_max > 0 && $duration_max < $duration_min) {
+            update_post_meta($post_id, MEEPLE_MANAGER_META_DURATION_MAX, $duration_min);
+        }
     }
 
     public function admin_notice() {
@@ -201,5 +239,21 @@ class Meeple_Manager_Game_Meta_Box {
         }
 
         update_post_meta($post_id, $meta_key, min(100, absint($value)));
+    }
+
+    private function save_optional_positive_integer($post_id, $meta_key, $field_name) {
+        if (!isset($_POST[$field_name]) || !is_scalar($_POST[$field_name])) {
+            delete_post_meta($post_id, $meta_key);
+            return 0;
+        }
+
+        $value = absint(wp_unslash($_POST[$field_name]));
+        if ($value === 0) {
+            delete_post_meta($post_id, $meta_key);
+            return 0;
+        }
+
+        update_post_meta($post_id, $meta_key, $value);
+        return $value;
     }
 }
