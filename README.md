@@ -69,14 +69,18 @@ Open **MeepleManager** in the WordPress admin to manage games and events. Users 
 - Search lending games by title and sort by inventory number or title in the table header
 - Mark games as **Aktueller Favorit** in the game editor; favorites appear first in `[game-list]` with a flame and the hover label **Heiß**
 - Enter player-count and play-time ranges in the game editor and create game categories under **Spielkategorien**
-- Filter the public catalog by game category; hover, focus, or tap a card to view its details
+- Filter the public catalog by game category; hover over a card, tap it, or use Enter/Space to toggle its details
 - Switch between the catalog's card and table views
 - Sort the catalog by title, player count, or play time in ascending or descending order
 - Import and export the inventory as CSV
 
 To add a game image, set its **Beitragsbild** in the game editor. By default, the full image fits inside the square card. Under **Spiele-Design**, you can instead fill the card and set a global focal position; each game can override its horizontal or vertical position in the editor.
 
+Both catalog views use uncropped source images, with fitting controlled by **Spiele-Design**. Disabling a category hides every game assigned to it, even if another category is still enabled. Disabling a parent category also hides games in its subcategories; games without categories remain visible. Player-count and play-time sorting uses the minimum value, or the maximum when only that value is known. Games with neither value remain at the end in both sort directions.
+
 An active loan makes a game appear as unavailable. Pending requests do not reserve a game. The warden coordinates competing requests outside the plugin.
+
+The page password is checked again when a request is submitted. If access has expired, reopen the protected page before sending the form again. Games with missing or invalid lending categories are shown as unavailable until their category is saved in the game editor. Decisions for the same game are processed one at a time to prevent simultaneous approvals or conflicting actions on a request.
 
 ## CSV format
 
