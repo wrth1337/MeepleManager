@@ -140,7 +140,7 @@ class Meeple_Manager_Game_Meta_Box {
         } elseif ($this->inventory_number_exists($inventory_number, $post_id)) {
             set_transient('meeple_manager_game_notice_' . get_current_user_id(), 'duplicate_number', MINUTE_IN_SECONDS);
         } else {
-            update_post_meta($post_id, MEEPLE_MANAGER_META_INVENTORY_NUMBER, $inventory_number);
+            update_post_meta($post_id, MEEPLE_MANAGER_META_INVENTORY_NUMBER, wp_slash($inventory_number));
         }
 
         $categories = Meeple_Manager_Content_Types::get_categories();
@@ -161,7 +161,7 @@ class Meeple_Manager_Game_Meta_Box {
         if ($condition === '') {
             delete_post_meta($post_id, MEEPLE_MANAGER_META_CONDITION);
         } else {
-            update_post_meta($post_id, MEEPLE_MANAGER_META_CONDITION, $condition);
+            update_post_meta($post_id, MEEPLE_MANAGER_META_CONDITION, wp_slash($condition));
         }
 
         if (isset($_POST['meeple_manager_favorite']) && sanitize_key(wp_unslash($_POST['meeple_manager_favorite'])) === '1') {

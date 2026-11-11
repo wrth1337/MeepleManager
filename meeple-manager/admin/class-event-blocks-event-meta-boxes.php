@@ -128,7 +128,7 @@ class Event_Blocks_Event_Meta_Boxes {
             if ($value === '') {
                 delete_post_meta($post_id, $meta_key);
             } else {
-                update_post_meta($post_id, $meta_key, $value);
+                update_post_meta($post_id, $meta_key, wp_slash($value));
             }
         }
 
