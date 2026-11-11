@@ -144,6 +144,7 @@ class Meeple_Manager_Admin {
             )
         );
         $categories = Meeple_Manager_Content_Types::get_categories();
+        $settings = self::get_settings();
         ?>
         <div class="wrap meeple-manager-admin">
             <h1>Ausleihanfragen</h1>
@@ -186,8 +187,13 @@ class Meeple_Manager_Admin {
                                     </p>
                                 </div>
                                 <p>
+                                    <label for="meeple-approval-<?php echo esc_attr($request->ID); ?>">Bestätigungs-E-Mail (vor dem Versand bearbeitbar)</label>
+                                    <textarea id="meeple-approval-<?php echo esc_attr($request->ID); ?>" name="approval_message" rows="6" class="large-text"><?php echo esc_textarea($settings['approval_template']); ?></textarea>
+                                    <span class="description">Du kannst hier Details zur Übergabe ergänzen. Platzhalter: <code>{first_name}</code>, <code>{last_name}</code>, <code>{game_title}</code>, <code>{inventory_number}</code>, <code>{checkout_date}</code>, <code>{due_date}</code>.</span>
+                                </p>
+                                <p>
                                     <label for="meeple-rejection-<?php echo esc_attr($request->ID); ?>">Nachricht bei Ablehnung (vor dem Versand änderbar)</label>
-                                    <textarea id="meeple-rejection-<?php echo esc_attr($request->ID); ?>" name="rejection_message" rows="4" class="large-text"><?php echo esc_textarea(self::get_settings()['rejection_template']); ?></textarea>
+                                    <textarea id="meeple-rejection-<?php echo esc_attr($request->ID); ?>" name="rejection_message" rows="4" class="large-text"><?php echo esc_textarea($settings['rejection_template']); ?></textarea>
                                 </p>
                                 <p class="meeple-manager-admin-actions">
                                     <button class="button button-primary" type="submit" name="decision" value="approve">Ausleihe bestätigen und E-Mail senden</button>
@@ -293,7 +299,7 @@ class Meeple_Manager_Admin {
                         </tr>
                         <tr>
                             <th scope="row"><label for="meeple-manager-approval-template">Bestätigung einer Ausleihe</label></th>
-                            <td><textarea id="meeple-manager-approval-template" class="large-text" rows="5" name="<?php echo esc_attr(MEEPLE_MANAGER_OPTION_SETTINGS); ?>[approval_template]"><?php echo esc_textarea($settings['approval_template']); ?></textarea><p class="description">Zusätzliche Platzhalter: <code>{checkout_date}</code>, <code>{due_date}</code>.</p></td>
+                            <td><textarea id="meeple-manager-approval-template" class="large-text" rows="5" name="<?php echo esc_attr(MEEPLE_MANAGER_OPTION_SETTINGS); ?>[approval_template]"><?php echo esc_textarea($settings['approval_template']); ?></textarea><p class="description">Diese Vorlage wird beim Bestätigen einer Anfrage vorausgefüllt und kann dort vor dem Versand ergänzt werden. Platzhalter: <code>{first_name}</code>, <code>{last_name}</code>, <code>{game_title}</code>, <code>{inventory_number}</code>, <code>{checkout_date}</code>, <code>{due_date}</code>.</p></td>
                         </tr>
                         <tr>
                             <th scope="row"><label for="meeple-manager-rejection-template">Standardtext bei Ablehnung</label></th>

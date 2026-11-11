@@ -147,8 +147,12 @@ class Meeple_Manager_Rentals {
             delete_post_meta($request_id, MEEPLE_MANAGER_META_REQUEST_MESSAGE);
 
             $settings = Meeple_Manager_Admin::get_settings();
+            $custom_message = isset($_POST['approval_message']) && is_scalar($_POST['approval_message'])
+                ? sanitize_textarea_field((string) wp_unslash($_POST['approval_message']))
+                : '';
+            $template = $custom_message !== '' ? $custom_message : $settings['approval_template'];
             $body = self::format_template(
-                $settings['approval_template'],
+                $template,
                 array(
                     '{first_name}' => $first_name,
                     '{last_name}' => $last_name,
