@@ -5,9 +5,9 @@ MeepleManager is a WordPress plugin for club events and a board-game lending inv
 ## Features
 
 - Existing event management, categories, card styling, and frontend labels
-- Game inventory with unique inventory numbers, fixed lending categories, condition notes, square featured images, and favorites
+- Game inventory with unique inventory numbers, fixed lending categories, condition notes, featured images shown without cropping inside square cards, and favorites
 - Public game catalog showing each copy as a responsive image card
-- Configurable placeholder image and opacity, favorite flame colors, and colors for catalog cards and the protected lending area
+- Configurable placeholder image and opacity, card frame thickness, favorite flame colors, and colors for catalog cards and the protected lending area
 - Password-protected lending list with availability and planned return dates
 - Member requests that staff approve or reject in the WordPress admin
 - Automatic request, approval, and rejection emails through WordPress mail
@@ -32,13 +32,6 @@ Add the public game-card catalog to a page:
 [game-list]
 ```
 
-Add a separate link button to the protected lending page. Set its target under `MeepleManager > Einstellungen`, or pass a URL directly:
-
-```text
-[meeple-lending-button]
-[meeple-lending-button url="https://example.com/spieleverleih/"]
-```
-
 Create a WordPress page, set its visibility to **Password protected**, and add the following shortcode to that page:
 
 ```text
@@ -60,10 +53,11 @@ Open **MeepleManager** in the WordPress admin to manage games and events. Users 
 - Configure the games warden email and email templates
 - Adjust the catalog and lending-area colors under **Spiele-Design**
 - Choose the fallback image and its opacity, and set both favorite-flame colors under **Spiele-Design**
+- Adjust the lending-request heading color under **Spiele-Design**
 - Mark games as **Aktueller Favorit** in the game editor; favorites appear first in `[game-list]` with a flame and the hover label **Heiß**
 - Import and export the inventory as CSV
 
-To add a game image, set its **Beitragsbild** in the game editor. MeepleManager generates a square 600 × 600 crop for the catalog cards. You can adjust the crop in the WordPress media editor.
+To add a game image, set its **Beitragsbild** in the game editor. The catalog keeps the image's proportions and fits the whole image inside a square card, so its top or bottom is not cropped.
 
 An active loan makes a game appear as unavailable. Pending requests do not reserve a game. The warden coordinates competing requests outside the plugin.
 
