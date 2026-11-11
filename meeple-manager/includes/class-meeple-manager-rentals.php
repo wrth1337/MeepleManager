@@ -14,14 +14,22 @@ class Meeple_Manager_Rentals {
     }
 
     public function submit_request() {
-        check_admin_referer('meeple_manager_submit_request', 'meeple_manager_request_nonce');
+        $page_id = absint($this->posted_value('meeple_lending_page_id'));
+        $page = $page_id > 0 ? get_post($page_id) : null;
 
-        $game_id = isset($_POST['meeple_game_id']) ? absint($_POST['meeple_game_id']) : 0;
-        $first_name = isset($_POST['meeple_first_name']) ? sanitize_text_field(wp_unslash($_POST['meeple_first_name'])) : '';
-        $last_name = isset($_POST['meeple_last_name']) ? sanitize_text_field(wp_unslash($_POST['meeple_last_name'])) : '';
-        $email = isset($_POST['meeple_email']) ? sanitize_email(wp_unslash($_POST['meeple_email'])) : '';
-        $message = isset($_POST['meeple_message']) ? sanitize_textarea_field(wp_unslash($_POST['meeple_message'])) : '';
-        $redirect = $this->get_frontend_redirect();
+        if (!$page instanceof WP_Post || $page->post_password === '' || post_password_required($page)
+            || ($page->post_status !== 'publish' && !current_user_can('edit_post', $page_id))) {
+            wp_die(esc_html('Bitte öffne die passwortgeschützte Verleihseite erneut und gib bei Bedarf das Seitenpasswort ein.'), '', array('response' => 403));
+        }
+
+        check_admin_referer('meeple_manager_submit_request_' . $page_id, 'meeple_manager_request_nonce');
+
+        $game_id = absint($this->posted_value('meeple_game_id'));
+        $first_name = sanitize_text_field($this->posted_value('meeple_first_name'));
+        $last_name = sanitize_text_field($this->posted_value('meeple_last_name'));
+        $email = sanitize_email($this->posted_value('meeple_email'));
+        $message = sanitize_textarea_field($this->posted_value('meeple_message'));
+        $redirect = get_permalink($page);
 
         if ($first_name === '' || $last_name === '' || !is_email($email)) {
             wp_safe_redirect(add_query_arg('meeple_request_status', 'invalid', $redirect));
@@ -45,12 +53,12 @@ class Meeple_Manager_Rentals {
         }
 
         $request_id = wp_insert_post(
-            array(
+            wp_slash(array(
                 'post_type' => MEEPLE_MANAGER_TRANSACTION_POST_TYPE,
                 'post_status' => 'private',
                 'post_title' => 'Ausleihanfrage: ' . $game->post_title,
                 'post_content' => '',
-            ),
+            )),
             true
         );
 
@@ -61,10 +69,10 @@ class Meeple_Manager_Rentals {
 
         update_post_meta($request_id, MEEPLE_MANAGER_META_TRANSACTION_STATUS, 'pending');
         update_post_meta($request_id, MEEPLE_MANAGER_META_GAME_ID, $game_id);
-        update_post_meta($request_id, MEEPLE_MANAGER_META_FIRST_NAME, $first_name);
-        update_post_meta($request_id, MEEPLE_MANAGER_META_LAST_NAME, $last_name);
-        update_post_meta($request_id, MEEPLE_MANAGER_META_EMAIL, $email);
-        update_post_meta($request_id, MEEPLE_MANAGER_META_REQUEST_MESSAGE, $message);
+        update_post_meta($request_id, MEEPLE_MANAGER_META_FIRST_NAME, wp_slash($first_name));
+        update_post_meta($request_id, MEEPLE_MANAGER_META_LAST_NAME, wp_slash($last_name));
+        update_post_meta($request_id, MEEPLE_MANAGER_META_EMAIL, wp_slash($email));
+        update_post_meta($request_id, MEEPLE_MANAGER_META_REQUEST_MESSAGE, wp_slash($message));
 
         $inventory_number = get_post_meta($game_id, MEEPLE_MANAGER_META_INVENTORY_NUMBER, true);
         $settings = Meeple_Manager_Admin::get_settings();
@@ -109,7 +117,7 @@ class Meeple_Manager_Rentals {
             wp_die(esc_html('Du hast keine Berechtigung, Ausleihanfragen zu verwalten.'));
         }
 
-        $request_id = isset($_POST['request_id']) ? absint($_POST['request_id']) : 0;
+        $request_id = absint($this->posted_value('request_id'));
         check_admin_referer('meeple_manager_decide_request_' . $request_id, 'meeple_manager_decide_nonce');
 
         $request = get_post($request_id);
@@ -118,8 +126,18 @@ class Meeple_Manager_Rentals {
             $this->redirect_admin('requests', 'invalid_request');
         }
 
-        $decision = isset($_POST['decision']) ? sanitize_key(wp_unslash($_POST['decision'])) : '';
+        $decision = sanitize_key($this->posted_value('decision'));
         $game_id = (int) get_post_meta($request_id, MEEPLE_MANAGER_META_GAME_ID, true);
+
+        // Serialize decisions for the same game, including concurrent requests and double clicks.
+        if (!$this->lock_game_decision($game_id > 0 ? 'game_' . $game_id : 'request_' . $request_id)) {
+            $this->redirect_admin('requests', 'request_busy');
+        }
+        wp_cache_delete($request_id, 'post_meta');
+        if (get_post_meta($request_id, MEEPLE_MANAGER_META_TRANSACTION_STATUS, true) !== 'pending') {
+            $this->redirect_admin('requests', 'invalid_request');
+        }
+
         $game = get_post($game_id);
         $email = sanitize_email(get_post_meta($request_id, MEEPLE_MANAGER_META_EMAIL, true));
         $first_name = (string) get_post_meta($request_id, MEEPLE_MANAGER_META_FIRST_NAME, true);
@@ -134,8 +152,8 @@ class Meeple_Manager_Rentals {
                 $this->redirect_admin('requests', 'game_unavailable');
             }
 
-            $checkout_date = isset($_POST['checkout_date']) ? sanitize_text_field(wp_unslash($_POST['checkout_date'])) : '';
-            $due_date = isset($_POST['due_date']) ? sanitize_text_field(wp_unslash($_POST['due_date'])) : '';
+            $checkout_date = sanitize_text_field($this->posted_value('checkout_date'));
+            $due_date = sanitize_text_field($this->posted_value('due_date'));
 
             if (!self::is_valid_date($checkout_date) || !self::is_valid_date($due_date) || $due_date < $checkout_date) {
                 $this->redirect_admin('requests', 'invalid_dates');
@@ -147,9 +165,7 @@ class Meeple_Manager_Rentals {
             delete_post_meta($request_id, MEEPLE_MANAGER_META_REQUEST_MESSAGE);
 
             $settings = Meeple_Manager_Admin::get_settings();
-            $custom_message = isset($_POST['approval_message']) && is_scalar($_POST['approval_message'])
-                ? sanitize_textarea_field((string) wp_unslash($_POST['approval_message']))
-                : '';
+            $custom_message = sanitize_textarea_field($this->posted_value('approval_message'));
             $template = $custom_message !== '' ? $custom_message : $settings['approval_template'];
             $body = self::format_template(
                 $template,
@@ -168,9 +184,7 @@ class Meeple_Manager_Rentals {
         }
 
         if ($decision === 'reject') {
-            $custom_message = isset($_POST['rejection_message'])
-                ? sanitize_textarea_field(wp_unslash($_POST['rejection_message']))
-                : '';
+            $custom_message = sanitize_textarea_field($this->posted_value('rejection_message'));
             $settings = Meeple_Manager_Admin::get_settings();
             $template = $custom_message !== '' ? $custom_message : $settings['rejection_template'];
             $body = self::format_template(
@@ -209,7 +223,7 @@ class Meeple_Manager_Rentals {
             wp_die(esc_html('Du hast keine Berechtigung, Ausleihen zu verwalten.'));
         }
 
-        $loan_id = isset($_POST['loan_id']) ? absint($_POST['loan_id']) : 0;
+        $loan_id = absint($this->posted_value('loan_id'));
         check_admin_referer('meeple_manager_return_loan_' . $loan_id, 'meeple_manager_return_nonce');
 
         $loan = get_post($loan_id);
@@ -218,7 +232,7 @@ class Meeple_Manager_Rentals {
             $this->redirect_admin('loans', 'invalid_loan');
         }
 
-        $return_date = isset($_POST['return_date']) ? sanitize_text_field(wp_unslash($_POST['return_date'])) : '';
+        $return_date = sanitize_text_field($this->posted_value('return_date'));
         $checkout_date = (string) get_post_meta($loan_id, MEEPLE_MANAGER_META_CHECKOUT_DATE, true);
 
         if (!self::is_valid_date($return_date) || (self::is_valid_date($checkout_date) && $return_date < $checkout_date)) {
@@ -345,14 +359,42 @@ class Meeple_Manager_Rentals {
         return strtr((string) $template, $placeholders);
     }
 
-    private function get_frontend_redirect() {
-        $referer = wp_get_referer();
+    private function posted_value($key) {
+        return isset($_POST[$key]) && is_scalar($_POST[$key]) ? (string) wp_unslash($_POST[$key]) : '';
+    }
 
-        if (!$referer) {
-            return home_url('/');
+    private function lock_game_decision($key) {
+        global $wpdb;
+
+        $name = 'meeple_manager_decision_lock_' . $key;
+        $now = time();
+        $token = ($now + 5 * MINUTE_IN_SECONDS) . ':' . wp_generate_uuid4();
+        // Use the unique option name directly; cached option APIs cannot provide an atomic lock.
+        $wpdb->query($wpdb->prepare(
+            "DELETE FROM {$wpdb->options} WHERE option_name = %s AND CAST(SUBSTRING_INDEX(option_value, ':', 1) AS UNSIGNED) < %d",
+            $name,
+            $now
+        ));
+        $acquired = $wpdb->query($wpdb->prepare(
+            "INSERT IGNORE INTO {$wpdb->options} (option_name, option_value, autoload) VALUES (%s, %s, 'no')",
+            $name,
+            $token
+        ));
+
+        if ($acquired !== 1) {
+            return false;
         }
 
-        return wp_validate_redirect($referer, home_url('/'));
+        // Redirect handlers exit; shutdown also releases the lock on those paths and on PHP errors.
+        register_shutdown_function(function () use ($name, $token) {
+            global $wpdb;
+            $wpdb->query($wpdb->prepare(
+                "DELETE FROM {$wpdb->options} WHERE option_name = %s AND option_value = %s",
+                $name,
+                $token
+            ));
+        });
+        return true;
     }
 
     private function redirect_admin($page, $result) {

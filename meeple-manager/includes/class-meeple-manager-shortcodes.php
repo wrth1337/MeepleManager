@@ -330,7 +330,8 @@ class Meeple_Manager_Shortcodes {
                 'meta_query' => array(
                     array(
                         'key' => MEEPLE_MANAGER_META_INVENTORY_NUMBER,
-                        'compare' => 'EXISTS',
+                        'value' => '',
+                        'compare' => '!=',
                     ),
                 ),
             )
@@ -374,16 +375,15 @@ class Meeple_Manager_Shortcodes {
         foreach ($games as $game) {
             $game_id = (int) $game->ID;
             $category_key = get_post_meta($game_id, MEEPLE_MANAGER_META_GAME_CATEGORY, true);
-            if (!isset($categories[$category_key])) {
-                $category_key = 'green';
-            }
-            $category = $categories[$category_key];
+            $category = isset($categories[$category_key]) ? $categories[$category_key] : array('short_label' => 'Nicht festgelegt');
             $inventory_number = get_post_meta($game_id, MEEPLE_MANAGER_META_INVENTORY_NUMBER, true);
             $condition = get_post_meta($game_id, MEEPLE_MANAGER_META_CONDITION, true);
             $loan = isset($active_by_game[$game_id]) ? $active_by_game[$game_id] : null;
             $due_date = $loan ? $loan['due_date'] : '';
 
-            if ($category_key === 'red') {
+            if (!isset($categories[$category_key])) {
+                $availability = 'Nicht ausleihbar – Kategorie fehlt';
+            } elseif ($category_key === 'red') {
                 $availability = 'Nicht ausleihbar';
             } elseif ($loan) {
                 $availability = 'Ausgeliehen';
@@ -406,13 +406,13 @@ class Meeple_Manager_Shortcodes {
         }
 
         $output .= '</tbody></table><p class="meeple-manager-table-no-results" data-game-title-no-results role="status" hidden>Kein Spiel mit diesem Titel gefunden.</p></div>';
-        $output .= $this->render_request_form($requestable_games);
+        $output .= $this->render_request_form($requestable_games, $post->ID);
         $output .= '</div>';
 
         return $output;
     }
 
-    private function render_request_form($games) {
+    private function render_request_form($games, $page_id) {
         if (empty($games)) {
             return '<p class="meeple-manager-empty">Aktuell können keine Ausleihanfragen gestellt werden.</p>';
         }
@@ -424,7 +424,8 @@ class Meeple_Manager_Shortcodes {
             <p>Die Anfrage ist unverbindlich. Der Spielewart bestätigt die Ausleihe persönlich.</p>
             <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
                 <input type="hidden" name="action" value="meeple_manager_submit_request">
-                <?php wp_nonce_field('meeple_manager_submit_request', 'meeple_manager_request_nonce'); ?>
+                <input type="hidden" name="meeple_lending_page_id" value="<?php echo esc_attr($page_id); ?>">
+                <?php wp_nonce_field('meeple_manager_submit_request_' . $page_id, 'meeple_manager_request_nonce'); ?>
                 <p>
                     <label for="meeple-request-game">Spiel</label>
                     <select id="meeple-request-game" name="meeple_game_id" required>

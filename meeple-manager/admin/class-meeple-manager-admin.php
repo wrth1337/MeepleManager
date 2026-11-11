@@ -492,6 +492,7 @@ class Meeple_Manager_Admin {
         $result = sanitize_key(wp_unslash($_GET['meeple_result']));
         $messages = array(
             'invalid_request' => array('error', 'Die Anfrage wurde bereits bearbeitet oder ist nicht mehr verfügbar.'),
+            'request_busy' => array('warning', 'Für dieses Spiel wird gerade eine Anfrage bearbeitet. Bitte aktualisiere die Seite und versuche es erneut.'),
             'game_unavailable' => array('error', 'Das Spiel ist inzwischen ausgeliehen oder nicht mehr ausleihbar. Die Anfrage bleibt offen.'),
             'invalid_dates' => array('error', 'Bitte gib ein gültiges Ausleih- und Rückgabedatum ein. Das Rückgabedatum darf nicht vor dem Ausleihdatum liegen.'),
             'loan_created' => array('success', 'Die Ausleihe wurde angelegt und die Bestätigungs-E-Mail wurde an das Mitglied übergeben.'),
