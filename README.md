@@ -11,6 +11,7 @@ MeepleManager is a WordPress plugin for club events and a board-game lending inv
 - Configurable thickness for lending-table lines
 - Configurable border thickness for the lending-request box
 - Password-protected lending list with availability and planned return dates
+- Searchable lending table with sorting by inventory number or title and a compact, labeled mobile layout
 - Member requests that staff approve or reject in the WordPress admin
 - Automatic request, approval, and rejection emails through WordPress mail
 - Admin-only active-loan list and return history
@@ -59,6 +60,7 @@ Open **MeepleManager** in the WordPress admin to manage games and events. Users 
 - Adjust the lending-request heading color under **Spiele-Design**
 - Adjust lending-table line thickness under **Spiele-Design**
 - Adjust the lending-request box border thickness under **Spiele-Design**
+- Search lending games by title and sort by inventory number or title in the table header
 - Mark games as **Aktueller Favorit** in the game editor; favorites appear first in `[game-list]` with a flame and the hover label **Heiß**
 - Import and export the inventory as CSV
 
