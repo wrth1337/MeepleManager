@@ -11,7 +11,6 @@ class Meeple_Manager_Shortcodes {
         add_shortcode('game-lending', array($this, 'render_lending_area'));
         add_shortcode('meeple-lending', array($this, 'render_lending_area'));
         add_shortcode('meeple_lending', array($this, 'render_lending_area'));
-        add_shortcode('meeple-lending-button', array($this, 'render_lending_button'));
         add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_styles'));
     }
 
@@ -55,7 +54,7 @@ class Meeple_Manager_Shortcodes {
         $placeholder_image = $placeholder_image_id > 0
             ? wp_get_attachment_image(
                 $placeholder_image_id,
-                'meeple-manager-game-card',
+                'large',
                 false,
                 array(
                     'class' => 'meeple-manager-game-card__image meeple-manager-game-card__image--placeholder',
@@ -68,21 +67,23 @@ class Meeple_Manager_Shortcodes {
         foreach ($games as $game) {
             $image = get_the_post_thumbnail(
                 $game->ID,
-                'meeple-manager-game-card',
+                'large',
                 array(
                     'class' => 'meeple-manager-game-card__image',
                     'alt' => $game->post_title,
                 )
             );
 
+            $is_placeholder = false;
             if (!is_string($image) || $image === '') {
+                $is_placeholder = true;
                 $image = $placeholder_image !== ''
                     ? $placeholder_image
                     : '<div class="meeple-manager-game-card__placeholder">Kein Bild hinterlegt</div>';
             }
 
             $output .= '<li class="meeple-manager-catalog__item">';
-            $output .= '<div class="meeple-manager-game-card__image-wrap">' . $image;
+            $output .= '<div class="meeple-manager-game-card__image-wrap' . ($is_placeholder ? ' meeple-manager-game-card__image-wrap--placeholder' : '') . '">' . $image;
             if (get_post_meta($game->ID, MEEPLE_MANAGER_META_FAVORITE, true) === '1') {
                 $output .= self::render_favorite_badge();
             }
@@ -102,26 +103,6 @@ class Meeple_Manager_Shortcodes {
             . '<path class="meeple-manager-favorite-badge__flame-outer" d="M12 23a8 8 0 0 1-8-8c0-3.6 2.1-6.7 5.4-8.1.2 2.1 1.4 3.4 2.5 4.2C13 7.5 12.9 4.1 11.5 1 16.7 4.7 20 9.2 20 15a8 8 0 0 1-8 8Z"/>'
             . '<path class="meeple-manager-favorite-badge__flame-inner" d="M12 20a4.5 4.5 0 0 1-4.5-4.5c0-1.7.9-3.2 2.3-4 .3 1.1 1 1.8 1.9 2.2.8-1.1 1.1-2.6.8-4.2 2.3 1.8 4 3.8 4 6A4.5 4.5 0 0 1 12 20Z"/>'
             . '</svg><span class="meeple-manager-favorite-badge__tooltip" aria-hidden="true">Heiß</span></span>';
-    }
-
-    public function render_lending_button($attributes) {
-        $attributes = shortcode_atts(array('url' => ''), $attributes, 'meeple-lending-button');
-        $settings = Meeple_Manager_Admin::get_settings();
-        $url = trim((string) $attributes['url']);
-
-        if ($url === '') {
-            $url = $settings['lending_page_url'];
-        }
-
-        $url = esc_url($url);
-
-        if ($url === '') {
-            return '';
-        }
-
-        $this->enqueue_styles();
-
-        return '<p class="meeple-manager-button-wrap"><a class="meeple-manager-button" href="' . $url . '">Zum Verleihbereich</a></p>';
     }
 
     public function render_lending_area() {
