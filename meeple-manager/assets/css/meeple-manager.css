@@ -21,6 +21,9 @@
     --meeple-manager-game-category-green: #25803b;
     --meeple-manager-game-category-yellow: #9a7000;
     --meeple-manager-game-category-red: #bb3030;
+    --meeple-manager-success-notice-bg: #eff8f0;
+    --meeple-manager-success-notice-text: #1a281d;
+    --meeple-manager-success-notice-accent: #25803b;
     --meeple-manager-favorite-flame-outer: #f05a28;
     --meeple-manager-favorite-flame-inner: #ffc247;
 }
@@ -347,9 +350,10 @@
     background: #f1f5f9;
 }
 
-.meeple-manager-notice--success {
-    border-left-color: #25803b;
-    background: #eff8f0;
+.meeple-manager-notice.meeple-manager-notice--success {
+    border-left-color: var(--meeple-manager-success-notice-accent, #25803b);
+    background: var(--meeple-manager-success-notice-bg, #eff8f0);
+    color: var(--meeple-manager-success-notice-text, #1a281d);
 }
 
 .meeple-manager-notice--warning {
