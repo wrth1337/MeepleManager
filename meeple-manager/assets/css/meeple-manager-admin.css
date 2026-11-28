@@ -90,7 +90,12 @@
 }
 
 .meeple-manager-request-decision__email-field {
+    max-width: 800px;
     margin: 18px 0;
+    padding: 16px;
+    border: 1px solid #d0d6dc;
+    border-radius: 8px;
+    background: #f6f7f7;
 }
 
 .meeple-manager-request-decision__email-field > label {
@@ -104,6 +109,34 @@
     display: block;
     margin: 6px 0 0;
     line-height: 1.5;
+}
+
+.meeple-manager-request-decision__email-field > .button {
+    margin-top: 12px;
+}
+
+.meeple-manager-request-decision__delete {
+    max-width: 800px;
+    margin-top: 28px;
+    padding-top: 16px;
+    border-top: 1px solid #d0d6dc;
+}
+
+.meeple-manager-request-decision__delete .description {
+    margin: 6px 0 0;
+}
+
+.meeple-manager-request-delete {
+    border-color: #b32d2e !important;
+    background: #b32d2e !important;
+    color: #fff !important;
+}
+
+.meeple-manager-request-delete:hover,
+.meeple-manager-request-delete:focus {
+    border-color: #8a2424 !important;
+    background: #8a2424 !important;
+    color: #fff !important;
 }
 
 #meeple-manager-warden-email,

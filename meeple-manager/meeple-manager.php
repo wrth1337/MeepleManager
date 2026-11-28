@@ -2,7 +2,7 @@
 /**
  * Plugin Name: MeepleManager
  * Description: Vereinsverwaltung für Events und Spieleverleih mit öffentlichem Spielekatalog und geschütztem Verleihbereich.
- * Version: 4.3.7
+ * Version: 4.3.8
  * Author: wrth1337
  * Text Domain: meeple-manager
  */
@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('MEEPLE_MANAGER_VERSION', '4.3.7');
+define('MEEPLE_MANAGER_VERSION', '4.3.8');
 define('MEEPLE_MANAGER_FILE', __FILE__);
 define('MEEPLE_MANAGER_DIR', plugin_dir_path(__FILE__));
 define('MEEPLE_MANAGER_URL', plugin_dir_url(__FILE__));
