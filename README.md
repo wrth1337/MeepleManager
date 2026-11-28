@@ -5,9 +5,11 @@ MeepleManager is a WordPress plugin for club events and a board-game lending inv
 ## Features
 
 - Existing event management, categories, card styling, and frontend labels
-- Game inventory with unique inventory numbers, fixed lending categories, condition notes, featured images shown without cropping inside square cards, and favorites
+- Game inventory with unique inventory numbers, fixed lending categories, condition notes, featured images with adjustable fitting and position, and favorites
 - Public game catalog showing each copy as a responsive image card
-- Configurable placeholder image and opacity, card frame thickness, favorite flame colors, and colors for catalog cards and the protected lending area
+- Configurable placeholder image and opacity, image fit and position, card frame thickness, favorite flame colors, and colors for catalog cards and the protected lending area
+- Configurable thickness for lending-table lines
+- Configurable border thickness for the lending-request box
 - Password-protected lending list with availability and planned return dates
 - Member requests that staff approve or reject in the WordPress admin
 - Automatic request, approval, and rejection emails through WordPress mail
@@ -53,11 +55,14 @@ Open **MeepleManager** in the WordPress admin to manage games and events. Users 
 - Configure the games warden email and email templates
 - Adjust the catalog and lending-area colors under **Spiele-Design**
 - Choose the fallback image and its opacity, and set both favorite-flame colors under **Spiele-Design**
+- Set game-image fitting and focal position under **Spiele-Design**, with optional per-game position overrides in each game editor
 - Adjust the lending-request heading color under **Spiele-Design**
+- Adjust lending-table line thickness under **Spiele-Design**
+- Adjust the lending-request box border thickness under **Spiele-Design**
 - Mark games as **Aktueller Favorit** in the game editor; favorites appear first in `[game-list]` with a flame and the hover label **Heiß**
 - Import and export the inventory as CSV
 
-To add a game image, set its **Beitragsbild** in the game editor. The catalog keeps the image's proportions and fits the whole image inside a square card, so its top or bottom is not cropped.
+To add a game image, set its **Beitragsbild** in the game editor. By default, the full image fits inside the square card. Under **Spiele-Design**, you can instead fill the card and set a global focal position; each game can override its horizontal or vertical position in the editor.
 
 An active loan makes a game appear as unavailable. Pending requests do not reserve a game. The warden coordinates competing requests outside the plugin.
 
