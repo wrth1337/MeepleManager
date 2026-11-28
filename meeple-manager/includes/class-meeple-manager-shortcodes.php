@@ -54,7 +54,7 @@ class Meeple_Manager_Shortcodes {
         $placeholder_image = $placeholder_image_id > 0
             ? wp_get_attachment_image(
                 $placeholder_image_id,
-                'large',
+                'full',
                 false,
                 array(
                     'class' => 'meeple-manager-game-card__image meeple-manager-game-card__image--placeholder',
@@ -65,12 +65,26 @@ class Meeple_Manager_Shortcodes {
         $output = '<div class="meeple-manager-catalog-wrap"><ul class="meeple-manager-catalog">';
 
         foreach ($games as $game) {
+            $image_position = array();
+            foreach (array(
+                'x' => MEEPLE_MANAGER_META_IMAGE_POSITION_X,
+                'y' => MEEPLE_MANAGER_META_IMAGE_POSITION_Y,
+            ) as $axis => $meta_key) {
+                $position = get_post_meta($game->ID, $meta_key, true);
+                if ($position !== '') {
+                    $image_position[] = '--meeple-manager-game-image-position-' . $axis . ':' . min(100, absint($position)) . '%';
+                }
+            }
+
             $image = get_the_post_thumbnail(
                 $game->ID,
-                'large',
-                array(
-                    'class' => 'meeple-manager-game-card__image',
-                    'alt' => $game->post_title,
+                'full',
+                array_merge(
+                    array(
+                        'class' => 'meeple-manager-game-card__image',
+                        'alt' => $game->post_title,
+                    ),
+                    !empty($image_position) ? array('style' => implode(';', $image_position) . ';') : array()
                 )
             );
 

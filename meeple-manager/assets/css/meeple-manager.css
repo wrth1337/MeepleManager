@@ -2,14 +2,19 @@
     --meeple-manager-game-card-bg: #fff;
     --meeple-manager-game-card-border: #d8dfd4;
     --meeple-manager-game-card-border-width: 1px;
+    --meeple-manager-game-image-fit: contain;
+    --meeple-manager-game-image-position-x: 50%;
+    --meeple-manager-game-image-position-y: 50%;
     --meeple-manager-game-title-color: #1a281d;
     --meeple-manager-game-placeholder-bg: #f1f5ee;
     --meeple-manager-game-placeholder-opacity: 40%;
     --meeple-manager-game-card-radius: 10px;
     --meeple-manager-game-table-bg: #fff;
     --meeple-manager-game-table-header-bg: #f1f5ee;
+    --meeple-manager-game-table-border-width: 1px;
     --meeple-manager-game-table-text-color: #1a281d;
     --meeple-manager-game-request-bg: #f9fbf8;
+    --meeple-manager-game-request-border-width: 1px;
     --meeple-manager-game-request-heading-color: #1a281d;
     --meeple-manager-game-button-bg: #233927;
     --meeple-manager-game-button-hover-bg: #36523d;
@@ -59,7 +64,12 @@
     display: block;
     width: 100%;
     height: 100%;
-    object-fit: contain;
+}
+
+.meeple-manager-catalog-wrap .meeple-manager-game-card__image,
+.meeple-manager-game-style-editor__preview .meeple-manager-game-card__image {
+    object-fit: var(--meeple-manager-game-image-fit, contain);
+    object-position: var(--meeple-manager-game-image-position-x, 50%) var(--meeple-manager-game-image-position-y, 50%);
 }
 
 .meeple-manager-game-card__image--placeholder {
@@ -192,7 +202,7 @@
 .meeple-manager-lending .meeple-manager-table th,
 .meeple-manager-lending .meeple-manager-table td {
     padding: 12px 14px;
-    border: 1px solid var(--meeple-manager-game-card-border, #d8dfd4);
+    border: var(--meeple-manager-game-table-border-width, 1px) solid var(--meeple-manager-game-card-border, #d8dfd4);
     text-align: left;
     vertical-align: top;
 }
@@ -232,7 +242,7 @@
     max-width: 680px;
     margin: 2rem 0;
     padding: 22px;
-    border: 1px solid var(--meeple-manager-game-card-border, #d8dfd4);
+    border: var(--meeple-manager-game-request-border-width, 1px) solid var(--meeple-manager-game-card-border, #d8dfd4);
     border-radius: var(--meeple-manager-game-card-radius, 10px);
     background: var(--meeple-manager-game-request-bg, #f9fbf8);
     color: var(--meeple-manager-game-table-text-color, #1a281d);
@@ -325,12 +335,12 @@
 
     .meeple-manager-lending .meeple-manager-table tr {
         margin-bottom: 14px;
-        border: 1px solid var(--meeple-manager-game-card-border, #d8dfd4);
+        border: var(--meeple-manager-game-table-border-width, 1px) solid var(--meeple-manager-game-card-border, #d8dfd4);
     }
 
     .meeple-manager-lending .meeple-manager-table td {
         border: 0;
-        border-bottom: 1px solid var(--meeple-manager-game-card-border, #d8dfd4);
+        border-bottom: var(--meeple-manager-game-table-border-width, 1px) solid var(--meeple-manager-game-card-border, #d8dfd4);
     }
 
     .meeple-manager-lending .meeple-manager-table td:last-child {
