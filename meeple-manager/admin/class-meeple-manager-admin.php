@@ -186,15 +186,15 @@ class Meeple_Manager_Admin {
                                         <input id="meeple-due-<?php echo esc_attr($request->ID); ?>" name="due_date" type="date">
                                     </p>
                                 </div>
-                                <p>
+                                <div class="meeple-manager-request-decision__email-field">
                                     <label for="meeple-approval-<?php echo esc_attr($request->ID); ?>">Bestätigungs-E-Mail (vor dem Versand bearbeitbar)</label>
                                     <textarea id="meeple-approval-<?php echo esc_attr($request->ID); ?>" name="approval_message" rows="6" class="large-text"><?php echo esc_textarea($settings['approval_template']); ?></textarea>
-                                    <span class="description">Du kannst hier Details zur Übergabe ergänzen. Platzhalter: <code>{first_name}</code>, <code>{last_name}</code>, <code>{game_title}</code>, <code>{inventory_number}</code>, <code>{checkout_date}</code>, <code>{due_date}</code>.</span>
-                                </p>
-                                <p>
+                                    <p class="description">Du kannst hier Details zur Übergabe ergänzen. Platzhalter: <code>{first_name}</code>, <code>{last_name}</code>, <code>{game_title}</code>, <code>{inventory_number}</code>, <code>{checkout_date}</code>, <code>{due_date}</code>.</p>
+                                </div>
+                                <div class="meeple-manager-request-decision__email-field">
                                     <label for="meeple-rejection-<?php echo esc_attr($request->ID); ?>">Nachricht bei Ablehnung (vor dem Versand änderbar)</label>
                                     <textarea id="meeple-rejection-<?php echo esc_attr($request->ID); ?>" name="rejection_message" rows="4" class="large-text"><?php echo esc_textarea($settings['rejection_template']); ?></textarea>
-                                </p>
+                                </div>
                                 <p class="meeple-manager-admin-actions">
                                     <button class="button button-primary" type="submit" name="decision" value="approve">Ausleihe bestätigen und E-Mail senden</button>
                                     <button class="button" type="submit" name="decision" value="reject">Ablehnen, E-Mail senden und Anfrage löschen</button>
